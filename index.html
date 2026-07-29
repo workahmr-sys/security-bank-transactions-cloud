@@ -981,7 +981,7 @@
                     this.refreshMasterDataTables();
                 },
 
-                openPayeeModal(id = null) {
+                async openPayeeModal(id = null) {
                     this.editingId = id;
                     this.tempBankAccounts = [];
                     document.getElementById('payeeModalTitle').textContent = id ? 'Edit Payee' : 'Add Payee';
@@ -1006,6 +1006,16 @@
                         document.getElementById('payeeCategorySelect').value = payee?.category || '';
                         document.getElementById('noBankAccountCheck').checked = payee?.no_bank_account || false;
                         document.getElementById('payeeNotesInput').value = payee?.notes || '';
+                        
+                        // Load bank accounts from database
+                        const { data: accounts } = await supabase.from('payee_bank_accounts').select('*, banks(name)').eq('payee_id', id);
+                        if (accounts && accounts.length > 0) {
+                            this.tempBankAccounts = accounts.map(acc => ({
+                                bankId: acc.bank_id,
+                                bankName: acc.banks.name,
+                                accountNumber: acc.account_number
+                            }));
+                        }
                     } else {
                         document.getElementById('payeeModalInput').value = '';
                         document.getElementById('payeeCategorySelect').value = '';
@@ -1015,6 +1025,7 @@
                     }
                     
                     this.toggleBankAccountSection();
+                    this.refreshBankAccountsList();
                     document.getElementById('payeeModal').style.display = 'flex';
                 },
 
@@ -1087,15 +1098,32 @@
                     
                     if (!name) { this.showToast('Enter payee name', 'error'); return; }
                     
+                    let payeeId = this.editingId;
+                    
                     if (this.editingId) {
                         const { error } = await supabase.from('payees').update({ name, category: categoryId, no_bank_account: noBankAccount, notes }).eq('id', this.editingId);
                         if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
-                        this.showToast('Payee updated!', 'success');
                     } else {
-                        const { error } = await supabase.from('payees').insert([{ name, category: categoryId, no_bank_account: noBankAccount, notes }]);
+                        const { data, error } = await supabase.from('payees').insert([{ name, category: categoryId, no_bank_account: noBankAccount, notes }]).select();
                         if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
-                        this.showToast('Payee added!', 'success');
+                        payeeId = data[0].id;
                     }
+                    
+                    // Delete old bank accounts and add new ones
+                    if (payeeId) {
+                        await supabase.from('payee_bank_accounts').delete().eq('payee_id', payeeId);
+                        
+                        if (this.tempBankAccounts && this.tempBankAccounts.length > 0) {
+                            const accountsToInsert = this.tempBankAccounts.map(acc => ({
+                                payee_id: payeeId,
+                                bank_id: acc.bankId,
+                                account_number: acc.accountNumber
+                            }));
+                            await supabase.from('payee_bank_accounts').insert(accountsToInsert);
+                        }
+                    }
+                    
+                    this.showToast(this.editingId ? 'Payee updated!' : 'Payee added!', 'success');
                     this.closePayeeModal();
                     await this.loadData();
                     this.refreshMasterDataTables();
@@ -1457,9 +1485,10 @@
                     html = '';
                     this.data.payees.forEach(p => {
                         const category = this.data.payeeCategories.find(c => c.id === p.category);
-                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        const accountInfo = p.no_bank_account ? 'Cash/Direct' : '(has bank accounts)';
+                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><span style="color: #666; font-size: 0.85rem;">${accountInfo}</span></td><td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
+                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
 
                     // Expense Types
                     html = '';
