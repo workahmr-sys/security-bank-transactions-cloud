@@ -369,7 +369,80 @@
     </style>
 </head>
 <body>
-    <!-- AUTH SCREEN -->
+    <!-- MODALS -->
+    <div id="bankModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+            <h2 id="bankModalTitle">Add Bank</h2>
+            <div class="form-group">
+                <label>Bank Name *</label>
+                <input type="text" id="bankModalInput" placeholder="e.g., Security Bank">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.saveBankModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closeBankModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="categoryModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+            <h2 id="categoryModalTitle">Add Category</h2>
+            <div class="form-group">
+                <label>Category Name *</label>
+                <input type="text" id="categoryModalInput" placeholder="e.g., Driver">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.saveCategoryModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closeCategoryModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+            <h2 id="payeeModalTitle">Add Payee</h2>
+            <div class="form-group">
+                <label>Payee Name *</label>
+                <input type="text" id="payeeModalInput" placeholder="e.g., Juan Dela Cruz">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.savePayeeModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closePayeeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="expenseModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+            <h2 id="expenseModalTitle">Add Expense Type</h2>
+            <div class="form-group">
+                <label>Expense Type *</label>
+                <input type="text" id="expenseModalInput" placeholder="e.g., Fuel">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.saveExpenseModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closeExpenseModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="plateModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+            <h2 id="plateModalTitle">Add Plate</h2>
+            <div class="form-group">
+                <label>Plate Number *</label>
+                <input type="text" id="plateModalInput" placeholder="e.g., ABC-123">
+            </div>
+            <div class="form-group">
+                <label>Driver Name</label>
+                <input type="text" id="plateDriverInput" placeholder="e.g., Juan">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.savePlateModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closePlateModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
             <h1>🏦 Security Bank</h1>
@@ -527,16 +600,17 @@
 
                     <!-- BANKS -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🏦 Banks</h3>
-                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
-                            <input type="text" id="newBankName" placeholder="Enter bank name">
-                            <button class="btn btn-primary" onclick="window.appInstance.addBank()" style="white-space: nowrap;">+ Add Bank</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
-                            <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🏦 Banks</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="window.appInstance.openBankModal()">+ Add Bank</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📥 Import CSV</button>
+                                <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
+                            </div>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th style="width: 150px;">Actions</th></tr></thead>
                                 <tbody id="banksTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No banks added yet</td></tr></tbody>
                             </table>
                         </div>
@@ -544,16 +618,17 @@
 
                     <!-- PAYEE CATEGORIES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">📂 Payee Categories</h3>
-                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
-                            <input type="text" id="newCategoryName" placeholder="Enter category name">
-                            <button class="btn btn-primary" onclick="window.appInstance.addCategory()" style="white-space: nowrap;">+ Add Category</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
-                            <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">📂 Payee Categories</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="window.appInstance.openCategoryModal()">+ Add Category</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📥 Import CSV</button>
+                                <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
+                            </div>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th style="width: 150px;">Actions</th></tr></thead>
                                 <tbody id="categoriesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No categories added yet</td></tr></tbody>
                             </table>
                         </div>
@@ -561,33 +636,35 @@
 
                     <!-- PAYEES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">👤 Payees</h3>
-                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
-                            <input type="text" id="newPayeeName" placeholder="Enter payee name">
-                            <button class="btn btn-primary" onclick="window.appInstance.addPayee()" style="white-space: nowrap;">+ Add Payee</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
-                            <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">👤 Payees</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="window.appInstance.openPayeeModal()">+ Add Payee</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📥 Import CSV</button>
+                                <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
+                            </div>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th>Category</th><th style="width: 100px;">Actions</th></tr></thead>
-                                <tbody id="payeesTable"><tr><td colspan="3" style="text-align: center; padding: 2rem;">No payees added yet</td></tr></tbody>
+                                <thead><tr><th>Name</th><th style="width: 150px;">Actions</th></tr></thead>
+                                <tbody id="payeesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No payees added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- EXPENSE TYPES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">💰 Expense Types</h3>
-                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
-                            <input type="text" id="newExpenseName" placeholder="Enter expense type">
-                            <button class="btn btn-primary" onclick="window.appInstance.addExpenseType()" style="white-space: nowrap;">+ Add Expense Type</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
-                            <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">💰 Expense Types</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="window.appInstance.openExpenseModal()">+ Add Expense Type</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📥 Import CSV</button>
+                                <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
+                            </div>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <thead><tr><th>Name</th><th style="width: 150px;">Actions</th></tr></thead>
                                 <tbody id="expenseTypesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No expense types added yet</td></tr></tbody>
                             </table>
                         </div>
@@ -595,17 +672,17 @@
 
                     <!-- PLATE NUMBERS -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🚗 Plate Numbers</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
-                            <input type="text" id="newPlateNumber" placeholder="Plate number">
-                            <input type="text" id="newPlateDriver" placeholder="Driver name">
-                            <button class="btn btn-primary" onclick="window.appInstance.addPlate()" style="white-space: nowrap;">+ Add Plate</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
-                            <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🚗 Plate Numbers</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="window.appInstance.openPlateModal()">+ Add Plate</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📥 Import CSV</button>
+                                <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
+                            </div>
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Plate Number</th><th>Driver</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <thead><tr><th>Plate Number</th><th>Driver</th><th style="width: 150px;">Actions</th></tr></thead>
                                 <tbody id="platesTable"><tr><td colspan="3" style="text-align: center; padding: 2rem;">No plates added yet</td></tr></tbody>
                             </table>
                         </div>
@@ -786,6 +863,153 @@
                     if (section === 'master-data') {
                         this.refreshMasterDataTables();
                     }
+                },
+
+                // ===== MODAL FUNCTIONS =====
+                editingId = null,
+
+                openBankModal(id = null) {
+                    this.editingId = id;
+                    document.getElementById('bankModalTitle').textContent = id ? 'Edit Bank' : 'Add Bank';
+                    document.getElementById('bankModalInput').value = id ? (this.data.banks.find(b => b.id === id)?.name || '') : '';
+                    document.getElementById('bankModal').style.display = 'flex';
+                },
+
+                closeBankModal() {
+                    document.getElementById('bankModal').style.display = 'none';
+                    this.editingId = null;
+                },
+
+                async saveBankModal() {
+                    const name = document.getElementById('bankModalInput').value.trim();
+                    if (!name) { this.showToast('Enter bank name', 'error'); return; }
+                    
+                    if (this.editingId) {
+                        await supabase.from('banks').update({ name }).eq('id', this.editingId);
+                        this.showToast('Bank updated!', 'success');
+                    } else {
+                        await supabase.from('banks').insert([{ name }]);
+                        this.showToast('Bank added!', 'success');
+                    }
+                    this.closeBankModal();
+                    await this.loadData();
+                },
+
+                openCategoryModal(id = null) {
+                    this.editingId = id;
+                    document.getElementById('categoryModalTitle').textContent = id ? 'Edit Category' : 'Add Category';
+                    document.getElementById('categoryModalInput').value = id ? (this.data.payeeCategories.find(c => c.id === id)?.name || '') : '';
+                    document.getElementById('categoryModal').style.display = 'flex';
+                },
+
+                closeCategoryModal() {
+                    document.getElementById('categoryModal').style.display = 'none';
+                    this.editingId = null;
+                },
+
+                async saveCategoryModal() {
+                    const name = document.getElementById('categoryModalInput').value.trim();
+                    if (!name) { this.showToast('Enter category name', 'error'); return; }
+                    
+                    if (this.editingId) {
+                        await supabase.from('payee_categories').update({ name }).eq('id', this.editingId);
+                        this.showToast('Category updated!', 'success');
+                    } else {
+                        await supabase.from('payee_categories').insert([{ name }]);
+                        this.showToast('Category added!', 'success');
+                    }
+                    this.closeCategoryModal();
+                    await this.loadData();
+                },
+
+                openPayeeModal(id = null) {
+                    this.editingId = id;
+                    document.getElementById('payeeModalTitle').textContent = id ? 'Edit Payee' : 'Add Payee';
+                    document.getElementById('payeeModalInput').value = id ? (this.data.payees.find(p => p.id === id)?.name || '') : '';
+                    document.getElementById('payeeModal').style.display = 'flex';
+                },
+
+                closePayeeModal() {
+                    document.getElementById('payeeModal').style.display = 'none';
+                    this.editingId = null;
+                },
+
+                async savePayeeModal() {
+                    const name = document.getElementById('payeeModalInput').value.trim();
+                    if (!name) { this.showToast('Enter payee name', 'error'); return; }
+                    
+                    if (this.editingId) {
+                        await supabase.from('payees').update({ name }).eq('id', this.editingId);
+                        this.showToast('Payee updated!', 'success');
+                    } else {
+                        await supabase.from('payees').insert([{ name }]);
+                        this.showToast('Payee added!', 'success');
+                    }
+                    this.closePayeeModal();
+                    await this.loadData();
+                },
+
+                openExpenseModal(id = null) {
+                    this.editingId = id;
+                    document.getElementById('expenseModalTitle').textContent = id ? 'Edit Expense Type' : 'Add Expense Type';
+                    document.getElementById('expenseModalInput').value = id ? (this.data.expenseTypes.find(e => e.id === id)?.name || '') : '';
+                    document.getElementById('expenseModal').style.display = 'flex';
+                },
+
+                closeExpenseModal() {
+                    document.getElementById('expenseModal').style.display = 'none';
+                    this.editingId = null;
+                },
+
+                async saveExpenseModal() {
+                    const name = document.getElementById('expenseModalInput').value.trim();
+                    if (!name) { this.showToast('Enter expense type', 'error'); return; }
+                    
+                    if (this.editingId) {
+                        await supabase.from('expense_types').update({ name }).eq('id', this.editingId);
+                        this.showToast('Expense type updated!', 'success');
+                    } else {
+                        await supabase.from('expense_types').insert([{ name }]);
+                        this.showToast('Expense type added!', 'success');
+                    }
+                    this.closeExpenseModal();
+                    await this.loadData();
+                },
+
+                openPlateModal(id = null) {
+                    this.editingId = id;
+                    if (id) {
+                        const plate = this.data.plates.find(p => p.id === id);
+                        document.getElementById('plateModalTitle').textContent = 'Edit Plate';
+                        document.getElementById('plateModalInput').value = plate?.plate_number || '';
+                        document.getElementById('plateDriverInput').value = plate?.assigned_driver || '';
+                    } else {
+                        document.getElementById('plateModalTitle').textContent = 'Add Plate';
+                        document.getElementById('plateModalInput').value = '';
+                        document.getElementById('plateDriverInput').value = '';
+                    }
+                    document.getElementById('plateModal').style.display = 'flex';
+                },
+
+                closePlateModal() {
+                    document.getElementById('plateModal').style.display = 'none';
+                    this.editingId = null;
+                },
+
+                async savePlateModal() {
+                    const plate_number = document.getElementById('plateModalInput').value.trim();
+                    const assigned_driver = document.getElementById('plateDriverInput').value.trim();
+                    if (!plate_number) { this.showToast('Enter plate number', 'error'); return; }
+                    
+                    if (this.editingId) {
+                        await supabase.from('plates').update({ plate_number, assigned_driver }).eq('id', this.editingId);
+                        this.showToast('Plate updated!', 'success');
+                    } else {
+                        await supabase.from('plates').insert([{ plate_number, assigned_driver }]);
+                        this.showToast('Plate added!', 'success');
+                    }
+                    this.closePlateModal();
+                    await this.loadData();
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
@@ -1021,38 +1245,38 @@
                     // Banks
                     let html = '';
                     this.data.banks.forEach(b => {
-                        html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                        html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openBankModal('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('banksTable').innerHTML = html || '<tr><td colspan="2">No banks</td></tr>';
+                    document.getElementById('banksTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No banks added yet</td></tr>';
 
                     // Categories
                     html = '';
                     this.data.payeeCategories.forEach(c => {
-                        html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                        html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openCategoryModal('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('categoriesTable').innerHTML = html || '<tr><td colspan="2">No categories</td></tr>';
+                    document.getElementById('categoriesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No categories added yet</td></tr>';
 
                     // Payees
                     html = '';
                     this.data.payees.forEach(p => {
                         const category = this.data.payeeCategories.find(c => c.id === p.category);
-                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="3">No payees</td></tr>';
+                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
 
                     // Expense Types
                     html = '';
                     this.data.expenseTypes.forEach(e => {
-                        html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                        html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openExpenseModal('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('expenseTypesTable').innerHTML = html || '<tr><td colspan="2">No expense types</td></tr>';
+                    document.getElementById('expenseTypesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No expense types added yet</td></tr>';
 
                     // Plates
                     html = '';
                     this.data.plates.forEach(p => {
-                        html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                        html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPlateModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
-                    document.getElementById('platesTable').innerHTML = html || '<tr><td colspan="3">No plates</td></tr>';
+                    document.getElementById('platesTable').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No plates added yet</td></tr>';
                 }
             };
 
