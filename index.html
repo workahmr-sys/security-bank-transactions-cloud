@@ -711,6 +711,7 @@
                 user: null,
                 supabase: supabase,
                 data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [] },
+                editingId: null,
 
                 async init() {
                     const { data: { user } } = await supabase.auth.getUser();
@@ -866,8 +867,6 @@
                 },
 
                 // ===== MODAL FUNCTIONS =====
-                editingId = null,
-
                 openBankModal(id = null) {
                     this.editingId = id;
                     document.getElementById('bankModalTitle').textContent = id ? 'Edit Bank' : 'Add Bank';
