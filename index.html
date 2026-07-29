@@ -884,14 +884,17 @@
                     if (!name) { this.showToast('Enter bank name', 'error'); return; }
                     
                     if (this.editingId) {
-                        await supabase.from('banks').update({ name }).eq('id', this.editingId);
+                        const { error } = await supabase.from('banks').update({ name }).eq('id', this.editingId);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Bank updated!', 'success');
                     } else {
-                        await supabase.from('banks').insert([{ name }]);
+                        const { error } = await supabase.from('banks').insert([{ name }]);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Bank added!', 'success');
                     }
                     this.closeBankModal();
                     await this.loadData();
+                    this.refreshMasterDataTables();
                 },
 
                 openCategoryModal(id = null) {
@@ -911,14 +914,17 @@
                     if (!name) { this.showToast('Enter category name', 'error'); return; }
                     
                     if (this.editingId) {
-                        await supabase.from('payee_categories').update({ name }).eq('id', this.editingId);
+                        const { error } = await supabase.from('payee_categories').update({ name }).eq('id', this.editingId);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Category updated!', 'success');
                     } else {
-                        await supabase.from('payee_categories').insert([{ name }]);
+                        const { error } = await supabase.from('payee_categories').insert([{ name }]);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Category added!', 'success');
                     }
                     this.closeCategoryModal();
                     await this.loadData();
+                    this.refreshMasterDataTables();
                 },
 
                 openPayeeModal(id = null) {
@@ -938,14 +944,17 @@
                     if (!name) { this.showToast('Enter payee name', 'error'); return; }
                     
                     if (this.editingId) {
-                        await supabase.from('payees').update({ name }).eq('id', this.editingId);
+                        const { error } = await supabase.from('payees').update({ name }).eq('id', this.editingId);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Payee updated!', 'success');
                     } else {
-                        await supabase.from('payees').insert([{ name }]);
+                        const { error } = await supabase.from('payees').insert([{ name }]);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Payee added!', 'success');
                     }
                     this.closePayeeModal();
                     await this.loadData();
+                    this.refreshMasterDataTables();
                 },
 
                 openExpenseModal(id = null) {
@@ -965,14 +974,17 @@
                     if (!name) { this.showToast('Enter expense type', 'error'); return; }
                     
                     if (this.editingId) {
-                        await supabase.from('expense_types').update({ name }).eq('id', this.editingId);
+                        const { error } = await supabase.from('expense_types').update({ name }).eq('id', this.editingId);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Expense type updated!', 'success');
                     } else {
-                        await supabase.from('expense_types').insert([{ name }]);
+                        const { error } = await supabase.from('expense_types').insert([{ name }]);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Expense type added!', 'success');
                     }
                     this.closeExpenseModal();
                     await this.loadData();
+                    this.refreshMasterDataTables();
                 },
 
                 openPlateModal(id = null) {
@@ -1001,14 +1013,17 @@
                     if (!plate_number) { this.showToast('Enter plate number', 'error'); return; }
                     
                     if (this.editingId) {
-                        await supabase.from('plates').update({ plate_number, assigned_driver }).eq('id', this.editingId);
+                        const { error } = await supabase.from('plates').update({ plate_number, assigned_driver }).eq('id', this.editingId);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Plate updated!', 'success');
                     } else {
-                        await supabase.from('plates').insert([{ plate_number, assigned_driver }]);
+                        const { error } = await supabase.from('plates').insert([{ plate_number, assigned_driver }]);
+                        if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Plate added!', 'success');
                     }
                     this.closePlateModal();
                     await this.loadData();
+                    this.refreshMasterDataTables();
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
