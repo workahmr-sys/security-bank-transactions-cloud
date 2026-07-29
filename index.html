@@ -650,10 +650,12 @@
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🏦 Banks</h3>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openBankModal()">+ Add Bank</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadBankSampleCSV()">📥 Sample CSV</button>
                                 <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📤 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportBanksCSV()">💾 Export CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportBanksPDF()">💾 Export PDF</button>
                                 <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
                             </div>
                         </div>
@@ -669,10 +671,12 @@
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">📂 Payee Categories</h3>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openCategoryModal()">+ Add Category</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadCategorySampleCSV()">📥 Sample CSV</button>
                                 <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📤 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportCategoriesCSV()">💾 Export CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportCategoriesPDF()">💾 Export PDF</button>
                                 <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
                             </div>
                         </div>
@@ -688,10 +692,12 @@
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">👤 Payees</h3>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPayeeModal()">+ Add Payee</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadPayeeSampleCSV()">📥 Sample CSV</button>
                                 <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📤 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportPayeesCSV()">💾 Export CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportPayeesPDF()">💾 Export PDF</button>
                                 <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
                             </div>
                         </div>
@@ -707,10 +713,12 @@
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">💰 Expense Types</h3>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openExpenseModal()">+ Add Expense Type</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadExpenseSampleCSV()">📥 Sample CSV</button>
                                 <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📤 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportExpensesCSV()">💾 Export CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportExpensesPDF()">💾 Export PDF</button>
                                 <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
                             </div>
                         </div>
@@ -726,10 +734,12 @@
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🚗 Plate Numbers</h3>
-                            <div style="display: flex; gap: 0.5rem;">
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPlateModal()">+ Add Plate</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadPlateSampleCSV()">📥 Sample CSV</button>
                                 <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📤 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportPlatesCSV()">💾 Export CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.exportPlatesPDF()">💾 Export PDF</button>
                                 <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
                             </div>
                         </div>
@@ -747,6 +757,8 @@
 
     <!-- SUPABASE -->
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         // Wait for Supabase to load
@@ -1253,6 +1265,122 @@
                     this.showToast('Downloaded: ' + filename, 'success');
                 },
 
+                // ===== EXPORT FUNCTIONS =====
+                exportBanksCSV() {
+                    const sortedBanks = [...this.data.banks].sort((a, b) => a.name.localeCompare(b.name));
+                    let csv = 'name\n';
+                    sortedBanks.forEach(b => { csv += `${b.name}\n`; });
+                    this.downloadCSV(csv, 'banks-export.csv');
+                },
+
+                exportBanksPDF() {
+                    const sortedBanks = [...this.data.banks].sort((a, b) => a.name.localeCompare(b.name));
+                    this.generateTablePDF('Banks', ['Name'], sortedBanks.map(b => [b.name]));
+                },
+
+                exportCategoriesCSV() {
+                    const sortedCats = [...this.data.payeeCategories].sort((a, b) => a.name.localeCompare(b.name));
+                    let csv = 'name\n';
+                    sortedCats.forEach(c => { csv += `${c.name}\n`; });
+                    this.downloadCSV(csv, 'payee-categories-export.csv');
+                },
+
+                exportCategoriesPDF() {
+                    const sortedCats = [...this.data.payeeCategories].sort((a, b) => a.name.localeCompare(b.name));
+                    this.generateTablePDF('Payee Categories', ['Name'], sortedCats.map(c => [c.name]));
+                },
+
+                exportPayeesCSV() {
+                    const sortedPayees = [...this.data.payees].sort((a, b) => a.name.localeCompare(b.name));
+                    let csv = 'name,category,bank,account_number\n';
+                    sortedPayees.forEach(p => {
+                        const category = this.data.payeeCategories.find(c => c.id === p.category);
+                        const accounts = this.data.payeeAccounts.filter(acc => acc.payee_id === p.id);
+                        if (accounts.length === 0) {
+                            csv += `${p.name},${category ? category.name : ''},-,-\n`;
+                        } else {
+                            accounts.forEach((acc, idx) => {
+                                csv += `${idx === 0 ? p.name : ''},${idx === 0 ? (category ? category.name : '') : ''},${acc.banks.name},${acc.account_number}\n`;
+                            });
+                        }
+                    });
+                    this.downloadCSV(csv, 'payees-export.csv');
+                },
+
+                exportPayeesPDF() {
+                    const sortedPayees = [...this.data.payees].sort((a, b) => a.name.localeCompare(b.name));
+                    const rows = [];
+                    sortedPayees.forEach(p => {
+                        const category = this.data.payeeCategories.find(c => c.id === p.category);
+                        const accounts = this.data.payeeAccounts.filter(acc => acc.payee_id === p.id);
+                        if (accounts.length === 0) {
+                            rows.push([p.name, category ? category.name : '-', 'Direct Payment / Cash']);
+                        } else {
+                            accounts.forEach((acc, idx) => {
+                                rows.push([
+                                    idx === 0 ? p.name : '',
+                                    idx === 0 ? (category ? category.name : '-') : '',
+                                    `${acc.banks.name}: ${acc.account_number}`
+                                ]);
+                            });
+                        }
+                    });
+                    this.generateTablePDF('Payees', ['Name', 'Category', 'Bank Accounts'], rows);
+                },
+
+                exportExpensesCSV() {
+                    const sortedExpenses = [...this.data.expenseTypes].sort((a, b) => a.name.localeCompare(b.name));
+                    let csv = 'name\n';
+                    sortedExpenses.forEach(e => { csv += `${e.name}\n`; });
+                    this.downloadCSV(csv, 'expense-types-export.csv');
+                },
+
+                exportExpensesPDF() {
+                    const sortedExpenses = [...this.data.expenseTypes].sort((a, b) => a.name.localeCompare(b.name));
+                    this.generateTablePDF('Expense Types', ['Name'], sortedExpenses.map(e => [e.name]));
+                },
+
+                exportPlatesCSV() {
+                    const sortedPlates = [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
+                    let csv = 'plate,driver\n';
+                    sortedPlates.forEach(p => { csv += `${p.plate_number},${p.assigned_driver || ''}\n`; });
+                    this.downloadCSV(csv, 'plates-export.csv');
+                },
+
+                exportPlatesPDF() {
+                    const sortedPlates = [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
+                    this.generateTablePDF('Plate Numbers', ['Plate Number', 'Driver'], sortedPlates.map(p => [p.plate_number, p.assigned_driver || '-']));
+                },
+
+                generateTablePDF(title, headers, rows) {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const margin = 10;
+                    
+                    // Add title
+                    doc.setFontSize(16);
+                    doc.text(title, margin, margin + 10);
+                    
+                    // Add timestamp
+                    doc.setFontSize(10);
+                    doc.text(`Generated: ${new Date().toLocaleString()}`, margin, margin + 18);
+                    
+                    // Add table
+                    doc.autoTable({
+                        head: [headers],
+                        body: rows,
+                        startY: margin + 25,
+                        margin: { top: margin, right: margin, left: margin, bottom: margin },
+                        theme: 'grid',
+                        headStyles: { fillColor: [26, 58, 82], textColor: 255, fontStyle: 'bold' },
+                        bodyStyles: { textColor: 0 },
+                        alternateRowStyles: { fillColor: [245, 245, 245] }
+                    });
+                    
+                    doc.save(`${title.toLowerCase().replace(/\\s+/g, '-')}-export.pdf`);
+                },
+
                 // ===== CSV IMPORT FUNCTIONS =====
                 async importBanksCSV(event) {
                     const file = event.target.files[0];
@@ -1548,23 +1676,26 @@
 
                 // ===== REFRESH MASTER DATA TABLES =====
                 refreshMasterDataTables() {
-                    // Banks
+                    // Banks - SORTED ALPHABETICALLY
                     let html = '';
-                    this.data.banks.forEach(b => {
+                    const sortedBanks = [...this.data.banks].sort((a, b) => a.name.localeCompare(b.name));
+                    sortedBanks.forEach(b => {
                         html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openBankModal('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
                     document.getElementById('banksTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No banks added yet</td></tr>';
 
-                    // Categories
+                    // Categories - SORTED ALPHABETICALLY
                     html = '';
-                    this.data.payeeCategories.forEach(c => {
+                    const sortedCategories = [...this.data.payeeCategories].sort((a, b) => a.name.localeCompare(b.name));
+                    sortedCategories.forEach(c => {
                         html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openCategoryModal('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
                     document.getElementById('categoriesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No categories added yet</td></tr>';
 
-                    // Payees
+                    // Payees - SORTED ALPHABETICALLY
                     html = '';
-                    this.data.payees.forEach(p => {
+                    const sortedPayees = [...this.data.payees].sort((a, b) => a.name.localeCompare(b.name));
+                    sortedPayees.forEach(p => {
                         const category = this.data.payeeCategories.find(c => c.id === p.category);
                         
                         // Get bank accounts for this payee
@@ -1586,16 +1717,18 @@
                     });
                     document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
 
-                    // Expense Types
+                    // Expense Types - SORTED ALPHABETICALLY
                     html = '';
-                    this.data.expenseTypes.forEach(e => {
+                    const sortedExpenses = [...this.data.expenseTypes].sort((a, b) => a.name.localeCompare(b.name));
+                    sortedExpenses.forEach(e => {
                         html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openExpenseModal('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
                     document.getElementById('expenseTypesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No expense types added yet</td></tr>';
 
-                    // Plates
+                    // Plates - SORTED ALPHABETICALLY
                     html = '';
-                    this.data.plates.forEach(p => {
+                    const sortedPlates = [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
+                    sortedPlates.forEach(p => {
                         html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPlateModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
                     });
                     document.getElementById('platesTable').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No plates added yet</td></tr>';
