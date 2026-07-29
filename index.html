@@ -1226,7 +1226,7 @@
                 },
 
                 downloadPayeeSampleCSV() {
-                    const csv = 'name\nJuan Dela Cruz\nMaria Santos\nPedro Garcia\nAna Lopez';
+                    const csv = 'name,category,bank,account_number\nJuan Dela Cruz,Driver,BDO,123-456-7\nJuan Dela Cruz,Driver,Security Bank,789-012-3\nJuan Dela Cruz,Driver,GCash,0930597640\nMaria Santos,Supplier,Metrobank,098-765-4\nPedro Garcia,Employee,GCash,0930597641';
                     this.downloadCSV(csv, 'payees-sample.csv');
                 },
 
@@ -1301,16 +1301,81 @@
                     const lines = text.split('\n').filter(l => l.trim());
                     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
                     
+                    const nameIdx = headers.indexOf('name');
+                    const categoryIdx = headers.indexOf('category');
+                    const bankIdx = headers.indexOf('bank');
+                    const accountIdx = headers.indexOf('account_number');
+                    
+                    // Group rows by payee name to handle multiple accounts
+                    const payeeMap = {};
                     for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(',');
-                        const nameIdx = headers.indexOf('name') >= 0 ? headers.indexOf('name') : 0;
-                        const name = values[nameIdx]?.trim();
-                        if (name) {
-                            await supabase.from('payees').insert([{ name }]);
+                        const values = lines[i].split(',').map(v => v.trim());
+                        const name = values[nameIdx];
+                        if (!name) continue;
+                        
+                        if (!payeeMap[name]) {
+                            payeeMap[name] = {
+                                category: categoryIdx >= 0 ? values[categoryIdx] : null,
+                                accounts: []
+                            };
+                        }
+                        
+                        // Add bank account if provided
+                        if (bankIdx >= 0 && accountIdx >= 0 && values[bankIdx] && values[accountIdx]) {
+                            payeeMap[name].accounts.push({
+                                bank: values[bankIdx],
+                                account: values[accountIdx]
+                            });
                         }
                     }
-                    this.showToast('Payees imported!', 'success');
+                    
+                    // Import payees
+                    let imported = 0;
+                    for (const [name, data] of Object.entries(payeeMap)) {
+                        try {
+                            // Get category ID
+                            let categoryId = null;
+                            if (data.category) {
+                                const category = this.data.payeeCategories.find(c => c.name.toLowerCase() === data.category.toLowerCase());
+                                categoryId = category?.id;
+                            }
+                            
+                            // Create payee
+                            const { data: payeeData, error: payeeError } = await supabase.from('payees').insert([{ name, category: categoryId }]).select();
+                            if (payeeError) {
+                                this.showToast(`Error importing ${name}: ${payeeError.message}`, 'error');
+                                continue;
+                            }
+                            
+                            const payeeId = payeeData[0]?.id;
+                            
+                            // Create all bank accounts for this payee
+                            if (payeeId && data.accounts.length > 0) {
+                                const accountsToInsert = [];
+                                for (const acc of data.accounts) {
+                                    const bank = this.data.banks.find(b => b.name.toLowerCase() === acc.bank.toLowerCase());
+                                    if (bank) {
+                                        accountsToInsert.push({
+                                            payee_id: payeeId,
+                                            bank_id: bank.id,
+                                            account_number: acc.account
+                                        });
+                                    }
+                                }
+                                if (accountsToInsert.length > 0) {
+                                    await supabase.from('payee_bank_accounts').insert(accountsToInsert);
+                                }
+                            }
+                            
+                            imported++;
+                        } catch (err) {
+                            this.showToast(`Error importing ${name}: ${err.message}`, 'error');
+                        }
+                    }
+                    
+                    this.showToast(`Imported ${imported} payee(s)!`, 'success');
                     await this.loadData();
+                    this.refreshMasterDataTables();
                     document.getElementById('payeeCsvFile').value = '';
                 },
 
