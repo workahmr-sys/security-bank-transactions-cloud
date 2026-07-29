@@ -21,10 +21,21 @@
             --color-void: #6c757d;
             --color-bg-main: #f8f9fa;
             --color-bg-card: #ffffff;
+            --color-bg-alt: #f5f5f5;
             --color-bg-hover: #e9ecef;
             --color-border: #dee2e6;
             --color-text-primary: #1a1a1a;
             --color-text-secondary: #666666;
+            --color-text-muted: #999999;
+            --color-heading: #1a3a52;
+            --color-table-header-bg: #1a3a52;
+            --color-table-header-text: #ffffff;
+            --color-input-bg: #ffffff;
+            --color-input-border: #dee2e6;
+            --color-input-text: #1a1a1a;
+            --color-modal-overlay: rgba(15, 23, 30, 0.55);
+            --color-btn-secondary-bg: #e9ecef;
+            --color-btn-secondary-text: #1a1a1a;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
@@ -33,15 +44,26 @@
         }
 
         :root.dark-mode {
-            --color-primary: #0f1f2e;
-            --color-primary-light: #1a3a52;
-            --color-secondary: #17a2b8;
-            --color-bg-main: #0d0d0d;
-            --color-bg-card: #1a1a1a;
-            --color-bg-hover: #2a2a2a;
-            --color-border: #333333;
-            --color-text-primary: #e0e0e0;
-            --color-text-secondary: #a0a0a0;
+            --color-primary: #14293b;
+            --color-primary-light: #1f4a6b;
+            --color-secondary: #2bc4dd;
+            --color-bg-main: #12161b;
+            --color-bg-card: #1c2128;
+            --color-bg-alt: #262c35;
+            --color-bg-hover: #2a313b;
+            --color-border: #333d49;
+            --color-text-primary: #e8ebee;
+            --color-text-secondary: #a7b0bb;
+            --color-text-muted: #7a8492;
+            --color-heading: #eef2f5;
+            --color-table-header-bg: #1f4a6b;
+            --color-table-header-text: #ffffff;
+            --color-input-bg: #262c35;
+            --color-input-border: #3a4552;
+            --color-input-text: #eef2f5;
+            --color-modal-overlay: rgba(0, 0, 0, 0.7);
+            --color-btn-secondary-bg: #2a313b;
+            --color-btn-secondary-text: #e8ebee;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
             --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
@@ -239,7 +261,7 @@
         .section-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--color-primary);
+            color: var(--color-heading);
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--color-secondary);
@@ -272,7 +294,7 @@
         .summary-card-value {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--color-primary);
+            color: var(--color-heading);
         }
 
         .btn {
@@ -296,8 +318,87 @@
         }
 
         .btn-secondary {
-            background-color: #e9ecef;
+            background-color: var(--color-btn-secondary-bg);
+            color: var(--color-btn-secondary-text);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--color-bg-hover);
+        }
+
+        .btn-danger {
+            background-color: var(--color-failed);
+            color: #ffffff;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .data-card {
+            margin-bottom: 3rem;
+            background: var(--color-bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .data-card h3 {
+            color: var(--color-heading);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--color-modal-overlay);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: var(--color-bg-card);
             color: var(--color-text-primary);
+            padding: 2rem;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-box h2, .modal-box h4 {
+            color: var(--color-heading);
+        }
+
+        .bank-account-box {
+            background: var(--color-bg-alt);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .bank-account-list {
+            margin-bottom: 1rem;
+            min-height: 30px;
+            border: 1px dashed var(--color-border);
+            padding: 0.75rem;
+            border-radius: 4px;
+            background: var(--color-bg-card);
+        }
+
+        .bank-account-item {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .form-group {
@@ -314,10 +415,20 @@
         input, textarea, select {
             width: 100%;
             padding: 0.625rem 0.75rem;
-            border: 1px solid var(--color-border);
+            border: 1px solid var(--color-input-border);
             border-radius: var(--radius);
             font-size: 0.95rem;
             font-family: inherit;
+            background-color: var(--color-input-bg);
+            color: var(--color-input-text);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        input[readonly] {
+            opacity: 0.75;
         }
 
         input:focus, textarea:focus, select:focus {
@@ -340,8 +451,8 @@
         }
 
         thead {
-            background-color: var(--color-primary);
-            color: white;
+            background-color: var(--color-table-header-bg);
+            color: var(--color-table-header-text);
         }
 
         th {
@@ -365,7 +476,8 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: white;
+            background: var(--color-bg-card);
+            color: var(--color-text-primary);
             padding: 1rem 1.5rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow-lg);
@@ -385,8 +497,8 @@
 </head>
 <body>
     <!-- MODALS -->
-    <div id="bankModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+    <div id="bankModal" class="modal-overlay">
+        <div class="modal-box">
             <h2 id="bankModalTitle">Add Bank</h2>
             <div class="form-group">
                 <label>Bank Name *</label>
@@ -399,8 +511,8 @@
         </div>
     </div>
 
-    <div id="categoryModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal-box">
             <h2 id="categoryModalTitle">Add Category</h2>
             <div class="form-group">
                 <label>Category Name *</label>
@@ -413,11 +525,11 @@
         </div>
     </div>
 
-    <div id="payeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 600px; margin: auto;">
+    <div id="payeeModal" class="modal-overlay" style="overflow-y: auto; padding: 2rem 0;">
+        <div class="modal-box" style="max-width: 600px; margin: auto;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h2 id="payeeModalTitle">Add Payee</h2>
-                <button onclick="window.appInstance.closePayeeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+                <button onclick="window.appInstance.closePayeeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-primary);">✕</button>
             </div>
 
             <!-- Name -->
@@ -446,17 +558,17 @@
             </div>
 
             <!-- Bank Accounts Section -->
-            <div id="bankAccountSection" style="background: #f5f5f5; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #ddd;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #1a3a52; font-size: 1rem;">Payment Accounts for This Payee</h4>
-                <div id="bankAccountsList" style="margin-bottom: 1rem; min-height: 30px; border: 1px dashed #ddd; padding: 0.75rem; border-radius: 4px; background: white;">
-                    <p style="color: #999; font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>
+            <div id="bankAccountSection" class="bank-account-box">
+                <h4 style="margin-top: 0; margin-bottom: 1rem; font-size: 1rem;">Payment Accounts for This Payee</h4>
+                <div id="bankAccountsList" class="bank-account-list">
+                    <p style="color: var(--color-text-muted); font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
-                    <select id="bankSelect" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                    <select id="bankSelect">
                         <option value="">-- Select Bank --</option>
                     </select>
-                    <input type="text" id="accountNumberInput" placeholder="Account Number (e.g., 123-456-7)" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                    <input type="text" id="accountNumberInput" placeholder="Account Number (e.g., 123-456-7)">
                 </div>
                 <button class="btn btn-secondary" onclick="window.appInstance.addBankAccount()" style="width: 100%;">+ Add Account</button>
             </div>
@@ -475,8 +587,8 @@
         </div>
     </div>
 
-    <div id="expenseModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+    <div id="expenseModal" class="modal-overlay">
+        <div class="modal-box">
             <h2 id="expenseModalTitle">Add Expense Type</h2>
             <div class="form-group">
                 <label>Expense Type *</label>
@@ -489,8 +601,8 @@
         </div>
     </div>
 
-    <div id="plateModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
+    <div id="plateModal" class="modal-overlay">
+        <div class="modal-box">
             <h2 id="plateModalTitle">Add Plate</h2>
             <div class="form-group">
                 <label>Plate Number *</label>
@@ -663,9 +775,9 @@
                     <h2 class="section-title">Master Data Management</h2>
 
                     <!-- BANKS -->
-                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="data-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🏦 Banks</h3>
+                            <h3>🏦 Banks</h3>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openBankModal()">+ Add Bank</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadBankSampleCSV()">📥 Sample CSV</button>
@@ -684,9 +796,9 @@
                     </div>
 
                     <!-- PAYEE CATEGORIES -->
-                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="data-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">📂 Payee Categories</h3>
+                            <h3>📂 Payee Categories</h3>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openCategoryModal()">+ Add Category</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadCategorySampleCSV()">📥 Sample CSV</button>
@@ -705,9 +817,9 @@
                     </div>
 
                     <!-- PAYEES -->
-                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="data-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">👤 Payees</h3>
+                            <h3>👤 Payees</h3>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPayeeModal()">+ Add Payee</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadPayeeSampleCSV()">📥 Sample CSV</button>
@@ -726,9 +838,9 @@
                     </div>
 
                     <!-- EXPENSE TYPES -->
-                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="data-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">💰 Expense Types</h3>
+                            <h3>💰 Expense Types</h3>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openExpenseModal()">+ Add Expense Type</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadExpenseSampleCSV()">📥 Sample CSV</button>
@@ -747,9 +859,9 @@
                     </div>
 
                     <!-- PLATE NUMBERS -->
-                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    <div class="data-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🚗 Plate Numbers</h3>
+                            <h3>🚗 Plate Numbers</h3>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPlateModal()">+ Add Plate</button>
                                 <button class="btn btn-secondary" onclick="window.appInstance.downloadPlateSampleCSV()">📥 Sample CSV</button>
@@ -1131,18 +1243,18 @@
                 refreshBankAccountsList() {
                     const list = document.getElementById('bankAccountsList');
                     if (!this.tempBankAccounts || this.tempBankAccounts.length === 0) {
-                        list.innerHTML = '<p style="color: #999; font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>';
+                        list.innerHTML = '<p style="color: var(--color-text-muted); font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>';
                         return;
                     }
                     
                     let html = '';
                     this.tempBankAccounts.forEach((acc, idx) => {
-                        html += `<div style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        html += `<div class="bank-account-item">
                             <div>
-                                <strong style="color: var(--color-primary);">${acc.bankName}</strong><br>
-                                <span style="color: #666; font-size: 0.9rem;">Account: ${acc.accountNumber}</span>
+                                <strong style="color: var(--color-heading);">${acc.bankName}</strong><br>
+                                <span style="color: var(--color-text-secondary); font-size: 0.9rem;">Account: ${acc.accountNumber}</span>
                             </div>
-                            <button class="btn btn-secondary" onclick="window.appInstance.removeBankAccount(${idx})" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; cursor: pointer;">Delete</button>
+                            <button class="btn btn-danger" onclick="window.appInstance.removeBankAccount(${idx})" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border: none; cursor: pointer;">Delete</button>
                         </div>`;
                     });
                     list.innerHTML = html;
@@ -1725,7 +1837,7 @@
                     let html = '';
                     const sortedBanks = [...this.data.banks].sort((a, b) => a.name.localeCompare(b.name));
                     sortedBanks.forEach(b => {
-                        html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openBankModal('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openBankModal('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-danger" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
                     });
                     document.getElementById('banksTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No banks added yet</td></tr>';
 
@@ -1733,7 +1845,7 @@
                     html = '';
                     const sortedCategories = [...this.data.payeeCategories].sort((a, b) => a.name.localeCompare(b.name));
                     sortedCategories.forEach(c => {
-                        html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openCategoryModal('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openCategoryModal('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-danger" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
                     });
                     document.getElementById('categoriesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No categories added yet</td></tr>';
 
@@ -1755,9 +1867,9 @@
                         html += `<tr>
                             <td>${p.name}</td>
                             <td>${category ? category.name : '-'}</td>
-                            <td style="color: ${p.no_bank_account ? '#17a2b8' : '#333'}; font-size: 0.9rem;">${bankAccountsDisplay}</td>
+                            <td style="color: ${p.no_bank_account ? 'var(--color-secondary)' : 'var(--color-text-primary)'}; font-size: 0.9rem;">${bankAccountsDisplay}</td>
                             <td>${p.notes ? p.notes : '-'}</td>
-                            <td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td>
+                            <td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-danger" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td>
                         </tr>`;
                     });
                     document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
@@ -1766,7 +1878,7 @@
                     html = '';
                     const sortedExpenses = [...this.data.expenseTypes].sort((a, b) => a.name.localeCompare(b.name));
                     sortedExpenses.forEach(e => {
-                        html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openExpenseModal('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openExpenseModal('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-danger" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
                     });
                     document.getElementById('expenseTypesTable').innerHTML = html || '<tr><td colspan="2" style="text-align: center; padding: 2rem;">No expense types added yet</td></tr>';
 
@@ -1774,7 +1886,7 @@
                     html = '';
                     const sortedPlates = [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
                     sortedPlates.forEach(p => {
-                        html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPlateModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.openPlateModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-danger" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
                     });
                     document.getElementById('platesTable').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No plates added yet</td></tr>';
                 }
