@@ -47,7 +47,7 @@
         }
 
         .auth-container {
-            display: none;
+            display: flex;
             position: fixed;
             top: 0;
             left: 0;
@@ -59,8 +59,8 @@
             justify-content: center;
         }
 
-        .auth-container.active {
-            display: flex;
+        .auth-container.hidden {
+            display: none;
         }
 
         .auth-box {
@@ -104,6 +104,7 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 0.95rem;
+            margin-top: 0.5rem;
         }
 
         .auth-box button:hover {
@@ -284,11 +285,6 @@
             color: var(--color-text-primary);
         }
 
-        .btn-success {
-            background-color: var(--color-success);
-            color: white;
-        }
-
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -313,66 +309,6 @@
             outline: none;
             border-color: var(--color-secondary);
             box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: var(--color-secondary);
-        }
-
-        .spinner {
-            border: 4px solid var(--color-bg-hover);
-            border-top: 4px solid var(--color-secondary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            z-index: 2000;
-            animation: slideInRight 0.3s ease;
-            max-width: 350px;
-            border-left: 4px solid var(--color-secondary);
-        }
-
-        .toast.success {
-            border-left-color: var(--color-success);
-        }
-
-        .toast.error {
-            border-left-color: var(--color-failed);
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
 
         .table-wrapper {
@@ -409,27 +345,41 @@
         tbody tr:hover {
             background-color: var(--color-bg-hover);
         }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            max-width: 350px;
+            border-left: 4px solid var(--color-secondary);
+        }
+
+        .toast.success {
+            border-left-color: var(--color-success);
+        }
+
+        .toast.error {
+            border-left-color: var(--color-failed);
+        }
     </style>
 </head>
 <body>
     <!-- AUTH SCREEN -->
-    <div class="auth-container active" id="authContainer">
+    <div class="auth-container" id="authContainer">
         <div class="auth-box">
             <h1>🏦 Security Bank</h1>
             <p>Multi-User Transaction Management</p>
             
-            <div id="authForm">
-                <input type="email" id="authEmail" placeholder="Email address" required>
-                <input type="password" id="authPassword" placeholder="Password" required>
-                <button onclick="app.handleLogin()">Login</button>
-                <button onclick="app.showSignup()" style="background: #6c757d; margin-top: 0.5rem;">Create Account</button>
-                <div class="auth-error" id="authError"></div>
-            </div>
-
-            <div class="auth-loading" id="authLoading">
-                <div class="spinner"></div>
-                <p>Connecting...</p>
-            </div>
+            <input type="email" id="authEmail" placeholder="Email address" required>
+            <input type="password" id="authPassword" placeholder="Password" required>
+            <button onclick="window.appInstance.handleLogin()">Login</button>
+            <button onclick="alert('Contact Mae to be added to system')" style="background: #6c757d;">Create Account</button>
+            <div class="auth-error" id="authError"></div>
         </div>
     </div>
 
@@ -440,7 +390,7 @@
             <h1>🏦 Security Bank Transactions</h1>
             <div class="user-info">
                 <span id="userEmail"></span>
-                <button onclick="app.handleLogout()">Logout</button>
+                <button onclick="window.appInstance.handleLogout()">Logout</button>
             </div>
         </header>
 
@@ -449,17 +399,15 @@
             <!-- SIDEBAR -->
             <nav class="sidebar">
                 <ul class="sidebar-nav">
-                    <li><button class="nav-btn active" data-section="dashboard" onclick="app.navigateTo('dashboard'); return false;">Dashboard</button></li>
-                    <li><button class="nav-btn" data-section="transactions" onclick="app.navigateTo('transactions'); return false;">Transactions</button></li>
-                    <li><button class="nav-btn" data-section="new-transaction" onclick="app.navigateTo('new-transaction'); return false;">New Transaction</button></li>
-                    <li><button class="nav-btn" data-section="master-data" onclick="app.navigateTo('master-data'); return false;">Master Data</button></li>
-                    <li><button class="nav-btn" data-section="import" onclick="app.navigateTo('import'); return false;">Import Data</button></li>
+                    <li><button class="nav-btn active" data-section="dashboard" onclick="window.appInstance.navigateTo('dashboard'); return false;">Dashboard</button></li>
+                    <li><button class="nav-btn" data-section="transactions" onclick="window.appInstance.navigateTo('transactions'); return false;">Transactions</button></li>
+                    <li><button class="nav-btn" data-section="new-transaction" onclick="window.appInstance.navigateTo('new-transaction'); return false;">New Transaction</button></li>
+                    <li><button class="nav-btn" data-section="master-data" onclick="window.appInstance.navigateTo('master-data'); return false;">Master Data</button></li>
                 </ul>
             </nav>
 
             <!-- CONTENT AREA -->
             <div class="content-area">
-
                 <!-- DASHBOARD SECTION -->
                 <div id="dashboard" class="section active">
                     <h2 class="section-title">Dashboard</h2>
@@ -493,7 +441,7 @@
                                 </tr>
                             </thead>
                             <tbody id="dashboardTableBody">
-                                <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                                <tr><td colspan="5" style="text-align: center;">No data yet</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -516,7 +464,7 @@
                                 </tr>
                             </thead>
                             <tbody id="transactionsTableBody">
-                                <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                                <tr><td colspan="6" style="text-align: center;">No transactions</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -526,7 +474,7 @@
                 <div id="new-transaction" class="section">
                     <h2 class="section-title">New Transaction</h2>
                     
-                    <form id="transactionForm" onsubmit="app.saveTransaction(event)">
+                    <form id="transactionForm" onsubmit="window.appInstance.saveTransaction(event)">
                         <div class="form-group">
                             <label>Control Number</label>
                             <input type="text" id="refNumber" readonly>
@@ -569,484 +517,196 @@
                             <textarea id="purpose" rows="3"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label>Remarks</label>
-                            <textarea id="remarks" rows="2"></textarea>
-                        </div>
-
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-primary">Save Transaction</button>
-                            <button type="reset" class="btn btn-secondary">Clear</button>
-                        </div>
+                        <button type="submit" class="btn btn-primary">Save Transaction</button>
                     </form>
                 </div>
 
                 <!-- MASTER DATA SECTION -->
                 <div id="master-data" class="section">
                     <h2 class="section-title">Master Data</h2>
-                    
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Banks</h3>
-                        <button class="btn btn-primary" onclick="app.addBankForm()">+ Add Bank</button>
-                        <div class="table-wrapper" style="margin-top: 1rem;">
-                            <table id="banksTable">
-                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-                                <tbody id="banksTableBody"><tr><td colspan="2">Loading...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Payees</h3>
-                        <button class="btn btn-primary" onclick="app.addPayeeForm()">+ Add Payee</button>
-                        <div class="table-wrapper" style="margin-top: 1rem;">
-                            <table id="payeesTable">
-                                <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
-                                <tbody id="payeesTableBody"><tr><td colspan="3">Loading...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Expense Types</h3>
-                        <button class="btn btn-primary" onclick="app.addExpenseTypeForm()">+ Add Expense Type</button>
-                        <div class="table-wrapper" style="margin-top: 1rem;">
-                            <table id="expenseTypesTable">
-                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-                                <tbody id="expenseTypesTableBody"><tr><td colspan="2">Loading...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <p>Banks, Payees, and Expense Types</p>
                 </div>
-
-                <!-- IMPORT DATA SECTION -->
-                <div id="import" class="section">
-                    <h2 class="section-title">Import Data</h2>
-                    
-                    <div style="background: var(--color-bg-card); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow-sm);">
-                        <h3 style="margin-bottom: 1rem;">Import CSV File</h3>
-                        <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Upload a CSV file with transactions data. Format should include: date, bank, payee, amount, expense_type, purpose</p>
-                        
-                        <div class="form-group">
-                            <label>Select CSV File</label>
-                            <input type="file" id="csvFile" accept=".csv" required>
-                        </div>
-
-                        <button type="button" class="btn btn-success" onclick="app.importCSV()">Import CSV</button>
-                        <div id="importStatus"></div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 
-    <!-- SUPABASE CLIENT -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SUPABASE -->
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ========================================
-        // SUPABASE CONFIGURATION
-        // ========================================
-        const SUPABASE_URL = 'https://myatrcadbeagspskacwn.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_mzYyOhbZuLV__z00_Cwnwg_4EJ-ZFtw';
+        // Wait for Supabase to load
+        async function initApp() {
+            while (!window.supabase) {
+                await new Promise(r => setTimeout(r, 100));
+            }
 
-        let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const SUPABASE_URL = 'https://myatrcadbeagspskacwn.supabase.co';
+            const SUPABASE_KEY = 'sb_publishable_mzYyOhbZuLV__z00_Cwnwg_4EJ-ZFtw';
 
-        // ========================================
-        // APP OBJECT
-        // ========================================
-        const app = {
-            user: null,
-            data: {
-                transactions: [],
-                banks: [],
-                payees: [],
-                expenseTypes: [],
-            },
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            async init() {
-                console.log('Initializing app...');
-                
-                // Check if user is logged in
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                if (user) {
-                    this.user = user;
+            window.appInstance = {
+                user: null,
+                supabase: supabase,
+                data: { transactions: [], banks: [], payees: [], expenseTypes: [] },
+
+                async init() {
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) {
+                        this.user = user;
+                        this.showApp();
+                        await this.loadData();
+                    } else {
+                        this.showAuth();
+                    }
+                },
+
+                showAuth() {
+                    document.getElementById('authContainer').classList.remove('hidden');
+                    document.getElementById('appContainer').style.display = 'none';
+                },
+
+                showApp() {
+                    document.getElementById('authContainer').classList.add('hidden');
+                    document.getElementById('appContainer').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = this.user.email;
+                },
+
+                async handleLogin() {
+                    const email = document.getElementById('authEmail').value;
+                    const password = document.getElementById('authPassword').value;
+
+                    if (!email || !password) {
+                        this.showToast('Enter email and password', 'error');
+                        return;
+                    }
+
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    
+                    if (error) {
+                        document.getElementById('authError').textContent = error.message;
+                        return;
+                    }
+
+                    this.user = data.user;
                     this.showApp();
                     await this.loadData();
-                    this.setupRealtimeSubscriptions();
-                } else {
+                },
+
+                async handleLogout() {
+                    await supabase.auth.signOut();
+                    this.user = null;
                     this.showAuth();
-                }
-            },
+                    document.getElementById('authEmail').value = '';
+                    document.getElementById('authPassword').value = '';
+                },
 
-            showAuth() {
-                document.getElementById('authContainer').classList.add('active');
-                document.getElementById('appContainer').style.display = 'none';
-            },
+                async loadData() {
+                    const { data: banks } = await supabase.from('banks').select('*');
+                    const { data: payees } = await supabase.from('payees').select('*');
+                    const { data: expenseTypes } = await supabase.from('expense_types').select('*');
+                    const { data: transactions } = await supabase.from('transactions').select('*').order('created_at', { ascending: false });
 
-            showApp() {
-                document.getElementById('authContainer').classList.remove('active');
-                document.getElementById('appContainer').style.display = 'flex';
-                document.getElementById('userEmail').textContent = this.user.email;
-            },
+                    this.data.banks = banks || [];
+                    this.data.payees = payees || [];
+                    this.data.expenseTypes = expenseTypes || [];
+                    this.data.transactions = transactions || [];
 
-            async handleLogin() {
-                const email = document.getElementById('authEmail').value;
-                const password = document.getElementById('authPassword').value;
-                const errorDiv = document.getElementById('authError');
-                const loadingDiv = document.getElementById('authLoading');
+                    this.populateDropdowns();
+                    this.updateDashboard();
+                },
 
-                if (!email || !password) {
-                    errorDiv.textContent = 'Please enter email and password';
-                    return;
-                }
+                populateDropdowns() {
+                    const bankSelect = document.getElementById('bank');
+                    bankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
+                    this.data.banks.forEach(b => {
+                        bankSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                    });
 
-                loadingDiv.style.display = 'block';
-                errorDiv.textContent = '';
+                    const payeeSelect = document.getElementById('payee');
+                    payeeSelect.innerHTML = '<option value="">-- Select Payee --</option>';
+                    this.data.payees.forEach(p => {
+                        payeeSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                    });
 
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    const expenseSelect = document.getElementById('expenseType');
+                    expenseSelect.innerHTML = '<option value="">-- Select Expense Type --</option>';
+                    this.data.expenseTypes.forEach(e => {
+                        expenseSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+                    });
+                },
 
-                loadingDiv.style.display = 'none';
+                updateDashboard() {
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayTrans = this.data.transactions.filter(t => t.trans_date === today);
+                    const todayAmount = todayTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-                if (error) {
-                    errorDiv.textContent = error.message;
-                    return;
-                }
+                    document.getElementById('todayCount').textContent = todayTrans.length;
+                    document.getElementById('todayAmount').textContent = `₱${todayAmount.toFixed(2)}`;
 
-                this.user = data.user;
-                this.showApp();
-                await this.loadData();
-                this.setupRealtimeSubscriptions();
-            },
+                    const currentMonth = new Date().toISOString().substring(0, 7);
+                    const monthTrans = this.data.transactions.filter(t => t.trans_date.substring(0, 7) === currentMonth);
+                    const monthAmount = monthTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    document.getElementById('monthAmount').textContent = `₱${monthAmount.toFixed(2)}`;
 
-            async handleLogout() {
-                await supabase.auth.signOut();
-                this.user = null;
-                this.showAuth();
-                document.getElementById('authEmail').value = '';
-                document.getElementById('authPassword').value = '';
-            },
+                    let html = '';
+                    this.data.transactions.slice(0, 5).forEach(t => {
+                        const bank = this.data.banks.find(b => b.id === t.bank_id);
+                        const payee = this.data.payees.find(p => p.id === t.payee_id);
+                        html += `<tr><td>${t.ref_number}</td><td>${t.trans_date}</td><td>${bank?.name || '-'}</td><td>${payee?.name || '-'}</td><td>₱${parseFloat(t.amount).toFixed(2)}</td></tr>`;
+                    });
+                    document.getElementById('dashboardTableBody').innerHTML = html || '<tr><td colspan="5">No transactions</td></tr>';
+                },
 
-            showSignup() {
-                alert('Contact Mae (yamanatrucks@gmail.com) to be added to the system');
-            },
+                async saveTransaction(e) {
+                    e.preventDefault();
+                    const { error } = await supabase.from('transactions').insert([{
+                        ref_number: document.getElementById('refNumber').value,
+                        trans_date: document.getElementById('transDate').value,
+                        bank_id: document.getElementById('bank').value,
+                        payee_id: document.getElementById('payee').value,
+                        amount: parseFloat(document.getElementById('amount').value),
+                        expense_type_id: document.getElementById('expenseType').value,
+                        purpose: document.getElementById('purpose').value,
+                        status: 'Successful',
+                        encoded_by: this.user.id
+                    }]);
 
-            async loadData() {
-                console.log('Loading data from Supabase...');
-
-                // Load banks
-                const { data: banksData } = await supabase.from('banks').select('*');
-                this.data.banks = banksData || [];
-
-                // Load payees
-                const { data: payeesData } = await supabase.from('payees').select('*');
-                this.data.payees = payeesData || [];
-
-                // Load expense types
-                const { data: expenseTypesData } = await supabase.from('expense_types').select('*');
-                this.data.expenseTypes = expenseTypesData || [];
-
-                // Load transactions
-                const { data: transactionsData } = await supabase.from('transactions').select('*').order('created_at', { ascending: false });
-                this.data.transactions = transactionsData || [];
-
-                this.populateDropdowns();
-                this.updateDashboard();
-                this.refreshTables();
-            },
-
-            setupRealtimeSubscriptions() {
-                // Subscribe to real-time updates
-                supabase.channel('public:transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
-                    this.loadData();
-                }).subscribe();
-            },
-
-            populateDropdowns() {
-                // Banks
-                const bankSelect = document.getElementById('bank');
-                bankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
-                this.data.banks.forEach(b => {
-                    bankSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
-                });
-
-                // Payees
-                const payeeSelect = document.getElementById('payee');
-                payeeSelect.innerHTML = '<option value="">-- Select Payee --</option>';
-                this.data.payees.forEach(p => {
-                    payeeSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-                });
-
-                // Expense Types
-                const expenseSelect = document.getElementById('expenseType');
-                expenseSelect.innerHTML = '<option value="">-- Select Expense Type --</option>';
-                this.data.expenseTypes.forEach(e => {
-                    expenseSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
-                });
-            },
-
-            async saveTransaction(e) {
-                e.preventDefault();
-
-                const refNumber = document.getElementById('refNumber').value;
-                const date = document.getElementById('transDate').value;
-                const bankId = document.getElementById('bank').value;
-                const payeeId = document.getElementById('payee').value;
-                const amount = document.getElementById('amount').value;
-                const expenseTypeId = document.getElementById('expenseType').value;
-                const purpose = document.getElementById('purpose').value;
-                const remarks = document.getElementById('remarks').value;
-
-                if (!date || !bankId || !payeeId || !amount || !expenseTypeId) {
-                    this.showToast('Please fill all required fields', 'error');
-                    return;
-                }
-
-                const { error } = await supabase.from('transactions').insert([{
-                    ref_number: refNumber,
-                    trans_date: date,
-                    bank_id: bankId,
-                    payee_id: payeeId,
-                    amount: parseFloat(amount),
-                    expense_type_id: expenseTypeId,
-                    purpose,
-                    remarks,
-                    status: 'Successful',
-                    encoded_by: this.user.id
-                }]);
-
-                if (error) {
-                    this.showToast('Error saving transaction: ' + error.message, 'error');
-                    return;
-                }
-
-                this.showToast('Transaction saved successfully!', 'success');
-                document.getElementById('transactionForm').reset();
-                await this.generateRefNumber();
-                await this.loadData();
-            },
-
-            async generateRefNumber() {
-                const { data } = await supabase.from('control_number_tracker').select('last_transaction_number').limit(1).single();
-                if (data) {
-                    const nextNum = data.last_transaction_number + 1;
-                    document.getElementById('refNumber').value = `YAMANA${String(nextNum).padStart(4, '0')}`;
-                    await supabase.from('control_number_tracker').update({ last_transaction_number: nextNum }).eq('id', data.id);
-                }
-            },
-
-            updateDashboard() {
-                const today = new Date().toISOString().split('T')[0];
-                const todayTransactions = this.data.transactions.filter(t => t.trans_date === today);
-                const todayAmount = todayTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-
-                document.getElementById('todayCount').textContent = todayTransactions.length;
-                document.getElementById('todayAmount').textContent = `₱${todayAmount.toFixed(2)}`;
-
-                const currentMonth = new Date().toISOString().substring(0, 7);
-                const monthTransactions = this.data.transactions.filter(t => t.trans_date.substring(0, 7) === currentMonth);
-                const monthAmount = monthTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-                document.getElementById('monthAmount').textContent = `₱${monthAmount.toFixed(2)}`;
-
-                // Recent transactions
-                const recent = this.data.transactions.slice(0, 5);
-                let html = '';
-                recent.forEach(t => {
-                    const bank = this.data.banks.find(b => b.id === t.bank_id);
-                    const payee = this.data.payees.find(p => p.id === t.payee_id);
-                    html += `<tr>
-                        <td><strong>${t.ref_number}</strong></td>
-                        <td>${t.trans_date}</td>
-                        <td>${bank ? bank.name : '-'}</td>
-                        <td>${payee ? payee.name : '-'}</td>
-                        <td style="text-align: right;">₱${parseFloat(t.amount).toFixed(2)}</td>
-                    </tr>`;
-                });
-                document.getElementById('dashboardTableBody').innerHTML = html || '<tr><td colspan="5">No transactions</td></tr>';
-            },
-
-            refreshTables() {
-                // Transactions table
-                let html = '';
-                this.data.transactions.forEach(t => {
-                    const bank = this.data.banks.find(b => b.id === t.bank_id);
-                    const payee = this.data.payees.find(p => p.id === t.payee_id);
-                    html += `<tr>
-                        <td><strong>${t.ref_number}</strong></td>
-                        <td>${t.trans_date}</td>
-                        <td>${bank ? bank.name : '-'}</td>
-                        <td>${payee ? payee.name : '-'}</td>
-                        <td style="text-align: right;">₱${parseFloat(t.amount).toFixed(2)}</td>
-                        <td>${t.status}</td>
-                    </tr>`;
-                });
-                document.getElementById('transactionsTableBody').innerHTML = html || '<tr><td colspan="6">No transactions</td></tr>';
-
-                // Banks table
-                html = '';
-                this.data.banks.forEach(b => {
-                    html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="app.deleteBank('${b.id}')">Delete</button></td></tr>`;
-                });
-                document.getElementById('banksTableBody').innerHTML = html || '<tr><td colspan="2">No banks</td></tr>';
-
-                // Payees table
-                html = '';
-                this.data.payees.forEach(p => {
-                    html += `<tr><td>${p.name}</td><td>-</td><td><button class="btn btn-secondary" onclick="app.deletePayee('${p.id}')">Delete</button></td></tr>`;
-                });
-                document.getElementById('payeesTableBody').innerHTML = html || '<tr><td colspan="3">No payees</td></tr>';
-
-                // Expense types table
-                html = '';
-                this.data.expenseTypes.forEach(e => {
-                    html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="app.deleteExpenseType('${e.id}')">Delete</button></td></tr>`;
-                });
-                document.getElementById('expenseTypesTableBody').innerHTML = html || '<tr><td colspan="2">No expense types</td></tr>';
-            },
-
-            async deleteBank(id) {
-                if (!confirm('Delete this bank?')) return;
-                await supabase.from('banks').delete().eq('id', id);
-                await this.loadData();
-            },
-
-            async deletePayee(id) {
-                if (!confirm('Delete this payee?')) return;
-                await supabase.from('payees').delete().eq('id', id);
-                await this.loadData();
-            },
-
-            async deleteExpenseType(id) {
-                if (!confirm('Delete this expense type?')) return;
-                await supabase.from('expense_types').delete().eq('id', id);
-                await this.loadData();
-            },
-
-            addBankForm() {
-                const name = prompt('Enter bank name:');
-                if (name) this.addBank(name);
-            },
-
-            async addBank(name) {
-                const { error } = await supabase.from('banks').insert([{ name }]);
-                if (error) {
-                    this.showToast('Error: ' + error.message, 'error');
-                } else {
-                    this.showToast('Bank added!', 'success');
-                    await this.loadData();
-                }
-            },
-
-            addPayeeForm() {
-                const name = prompt('Enter payee name:');
-                if (name) this.addPayee(name);
-            },
-
-            async addPayee(name) {
-                const { error } = await supabase.from('payees').insert([{ name }]);
-                if (error) {
-                    this.showToast('Error: ' + error.message, 'error');
-                } else {
-                    this.showToast('Payee added!', 'success');
-                    await this.loadData();
-                }
-            },
-
-            addExpenseTypeForm() {
-                const name = prompt('Enter expense type:');
-                if (name) this.addExpenseType(name);
-            },
-
-            async addExpenseType(name) {
-                const { error } = await supabase.from('expense_types').insert([{ name }]);
-                if (error) {
-                    this.showToast('Error: ' + error.message, 'error');
-                } else {
-                    this.showToast('Expense type added!', 'success');
-                    await this.loadData();
-                }
-            },
-
-            async importCSV() {
-                const fileInput = document.getElementById('csvFile');
-                const file = fileInput.files[0];
-                if (!file) {
-                    this.showToast('Please select a file', 'error');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const csv = e.target.result;
-                    const lines = csv.split('\n');
-                    const headers = lines[0].split(',');
-                    const rows = [];
-
-                    for (let i = 1; i < lines.length; i++) {
-                        if (lines[i].trim()) {
-                            const values = lines[i].split(',');
-                            const row = {};
-                            headers.forEach((h, idx) => {
-                                row[h.trim()] = values[idx] ? values[idx].trim() : '';
-                            });
-                            rows.push(row);
-                        }
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Transaction saved!', 'success');
+                        document.getElementById('transactionForm').reset();
+                        await this.loadData();
                     }
+                },
 
-                    // Insert rows
-                    for (const row of rows) {
-                        const bank = this.data.banks.find(b => b.name === row.bank);
-                        const payee = this.data.payees.find(p => p.name === row.payee);
-                        const expenseType = this.data.expenseTypes.find(e => e.name === row.expense_type);
+                navigateTo(section) {
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(section).classList.add('active');
 
-                        if (bank && payee && expenseType) {
-                            await supabase.from('transactions').insert([{
-                                ref_number: `IMPORT-${Date.now()}-${Math.random()}`,
-                                trans_date: row.date,
-                                bank_id: bank.id,
-                                payee_id: payee.id,
-                                amount: parseFloat(row.amount),
-                                expense_type_id: expenseType.id,
-                                purpose: row.purpose || '',
-                                status: 'Successful',
-                                encoded_by: this.user.id
-                            }]);
-                        }
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                    if (section === 'new-transaction') {
+                        document.getElementById('transDate').valueAsDate = new Date();
+                        document.getElementById('refNumber').value = 'YAMANA' + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
                     }
+                },
 
-                    this.showToast(`Imported ${rows.length} transactions!`, 'success');
-                    await this.loadData();
-                    fileInput.value = '';
-                };
-                reader.readAsText(file);
-            },
-
-            navigateTo(section) {
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                document.getElementById(section).classList.add('active');
-
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.querySelector(`[data-section="${section}"]`).classList.add('active');
-
-                if (section === 'new-transaction') {
-                    this.generateRefNumber();
-                    document.getElementById('transDate').valueAsDate = new Date();
+                showToast(message, type = 'info') {
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.textContent = message;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
                 }
-            },
+            };
 
-            showToast(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                toast.textContent = message;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            }
-        };
+            window.appInstance.init();
+        }
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => app.init());
+        initApp();
     </script>
 </body>
 </html>
