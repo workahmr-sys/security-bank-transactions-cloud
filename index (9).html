@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Bank Transactions - Cloud</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-primary: #1a3a52;
+            --color-primary-light: #2c5282;
+            --color-secondary: #17a2b8;
+            --color-success: #28a745;
+            --color-pending: #ffc107;
+            --color-failed: #dc3545;
+            --color-void: #6c757d;
+            --color-bg-main: #f8f9fa;
+            --color-bg-card: #ffffff;
+            --color-bg-hover: #e9ecef;
+            --color-border: #dee2e6;
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #666666;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.12);
+            --radius: 6px;
+            --transition: all 0.2s ease;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--color-bg-main);
+            color: var(--color-text-primary);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .auth-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container.active {
+            display: flex;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-box h1 {
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .auth-box p {
+            color: var(--color-text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--color-secondary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .auth-box button:hover {
+            background: #138496;
+        }
+
+        .auth-error {
+            color: var(--color-failed);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .auth-loading {
+            display: none;
+            text-align: center;
+            color: var(--color-secondary);
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .app-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .app-header button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .app-header button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: var(--color-bg-card);
+            border-right: 1px solid var(--color-border);
+            overflow-y: auto;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .sidebar-nav button {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--color-text-primary);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .sidebar-nav button:hover {
+            background-color: var(--color-bg-hover);
+            color: var(--color-secondary);
+        }
+
+        .sidebar-nav button.active {
+            background-color: var(--color-secondary);
+            color: white;
+            border-left: 3px solid var(--color-primary);
+            padding-left: 1.22rem;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--color-secondary);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .summary-card {
+            background: var(--color-bg-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--color-secondary);
+        }
+
+        .summary-card-label {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .summary-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #138496;
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--color-text-primary);
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-secondary);
+        }
+
+        .spinner {
+            border: 4px solid var(--color-bg-hover);
+            border-top: 4px solid var(--color-secondary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+            border-left: 4px solid var(--color-secondary);
+        }
+
+        .toast.success {
+            border-left-color: var(--color-success);
+        }
+
+        .toast.error {
+            border-left-color: var(--color-failed);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .table-wrapper {
+            background: var(--color-bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        th {
+            padding: 0.875rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 0.875rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        tbody tr:hover {
+            background-color: var(--color-bg-hover);
+        }
+    </style>
+</head>
+<body>
+    <!-- AUTH SCREEN -->
+    <div class="auth-container active" id="authContainer">
+        <div class="auth-box">
+            <h1>🏦 Security Bank</h1>
+            <p>Multi-User Transaction Management</p>
+            
+            <div id="authForm">
+                <input type="email" id="authEmail" placeholder="Email address" required>
+                <input type="password" id="authPassword" placeholder="Password" required>
+                <button onclick="app.handleLogin()">Login</button>
+                <button onclick="app.showSignup()" style="background: #6c757d; margin-top: 0.5rem;">Create Account</button>
+                <div class="auth-error" id="authError"></div>
+            </div>
+
+            <div class="auth-loading" id="authLoading">
+                <div class="spinner"></div>
+                <p>Connecting...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- HEADER -->
+        <header class="app-header">
+            <h1>🏦 Security Bank Transactions</h1>
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button onclick="app.handleLogout()">Logout</button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- SIDEBAR -->
+            <nav class="sidebar">
+                <ul class="sidebar-nav">
+                    <li><button class="nav-btn active" data-section="dashboard" onclick="app.navigateTo('dashboard'); return false;">Dashboard</button></li>
+                    <li><button class="nav-btn" data-section="transactions" onclick="app.navigateTo('transactions'); return false;">Transactions</button></li>
+                    <li><button class="nav-btn" data-section="new-transaction" onclick="app.navigateTo('new-transaction'); return false;">New Transaction</button></li>
+                    <li><button class="nav-btn" data-section="master-data" onclick="app.navigateTo('master-data'); return false;">Master Data</button></li>
+                    <li><button class="nav-btn" data-section="import" onclick="app.navigateTo('import'); return false;">Import Data</button></li>
+                </ul>
+            </nav>
+
+            <!-- CONTENT AREA -->
+            <div class="content-area">
+
+                <!-- DASHBOARD SECTION -->
+                <div id="dashboard" class="section active">
+                    <h2 class="section-title">Dashboard</h2>
+                    
+                    <div class="dashboard-grid">
+                        <div class="summary-card">
+                            <div class="summary-card-label">Today's Transactions</div>
+                            <div class="summary-card-value" id="todayCount">0</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-card-label">Today's Amount</div>
+                            <div class="summary-card-value" id="todayAmount">₱0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-card-label">Current Month Total</div>
+                            <div class="summary-card-value" id="monthAmount">₱0.00</div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top: 2rem; font-size: 1.2rem; border-bottom: 1px solid var(--color-border);">Recent Transactions</h3>
+                    
+                    <div class="table-wrapper">
+                        <table id="dashboardTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref #</th>
+                                    <th>Date</th>
+                                    <th>Bank</th>
+                                    <th>Payee</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardTableBody">
+                                <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TRANSACTIONS SECTION -->
+                <div id="transactions" class="section">
+                    <h2 class="section-title">Transaction History</h2>
+                    
+                    <div class="table-wrapper">
+                        <table id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref #</th>
+                                    <th>Date</th>
+                                    <th>Bank</th>
+                                    <th>Payee</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NEW TRANSACTION SECTION -->
+                <div id="new-transaction" class="section">
+                    <h2 class="section-title">New Transaction</h2>
+                    
+                    <form id="transactionForm" onsubmit="app.saveTransaction(event)">
+                        <div class="form-group">
+                            <label>Control Number</label>
+                            <input type="text" id="refNumber" readonly>
+                            <small style="color: var(--color-text-secondary);">Auto-generated</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="transDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bank *</label>
+                            <select id="bank" required>
+                                <option value="">-- Select Bank --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Payee *</label>
+                            <select id="payee" required>
+                                <option value="">-- Select Payee --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Amount *</label>
+                            <input type="number" id="amount" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Expense Type *</label>
+                            <select id="expenseType" required>
+                                <option value="">-- Select Expense Type --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Purpose</label>
+                            <textarea id="purpose" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea id="remarks" rows="2"></textarea>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Save Transaction</button>
+                            <button type="reset" class="btn btn-secondary">Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- MASTER DATA SECTION -->
+                <div id="master-data" class="section">
+                    <h2 class="section-title">Master Data</h2>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Banks</h3>
+                        <button class="btn btn-primary" onclick="app.addBankForm()">+ Add Bank</button>
+                        <div class="table-wrapper" style="margin-top: 1rem;">
+                            <table id="banksTable">
+                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+                                <tbody id="banksTableBody"><tr><td colspan="2">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Payees</h3>
+                        <button class="btn btn-primary" onclick="app.addPayeeForm()">+ Add Payee</button>
+                        <div class="table-wrapper" style="margin-top: 1rem;">
+                            <table id="payeesTable">
+                                <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
+                                <tbody id="payeesTableBody"><tr><td colspan="3">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem;">Expense Types</h3>
+                        <button class="btn btn-primary" onclick="app.addExpenseTypeForm()">+ Add Expense Type</button>
+                        <div class="table-wrapper" style="margin-top: 1rem;">
+                            <table id="expenseTypesTable">
+                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+                                <tbody id="expenseTypesTableBody"><tr><td colspan="2">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IMPORT DATA SECTION -->
+                <div id="import" class="section">
+                    <h2 class="section-title">Import Data</h2>
+                    
+                    <div style="background: var(--color-bg-card); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow-sm);">
+                        <h3 style="margin-bottom: 1rem;">Import CSV File</h3>
+                        <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Upload a CSV file with transactions data. Format should include: date, bank, payee, amount, expense_type, purpose</p>
+                        
+                        <div class="form-group">
+                            <label>Select CSV File</label>
+                            <input type="file" id="csvFile" accept=".csv" required>
+                        </div>
+
+                        <button type="button" class="btn btn-success" onclick="app.importCSV()">Import CSV</button>
+                        <div id="importStatus"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SUPABASE CLIENT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        // ========================================
+        // SUPABASE CONFIGURATION
+        // ========================================
+        const SUPABASE_URL = 'https://myatrcadbeagspskacwn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_mzYyOhbZuLV__z00_Cwnwg_4EJ-ZFtw';
+
+        let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ========================================
+        // APP OBJECT
+        // ========================================
+        const app = {
+            user: null,
+            data: {
+                transactions: [],
+                banks: [],
+                payees: [],
+                expenseTypes: [],
+            },
+
+            async init() {
+                console.log('Initializing app...');
+                
+                // Check if user is logged in
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (user) {
+                    this.user = user;
+                    this.showApp();
+                    await this.loadData();
+                    this.setupRealtimeSubscriptions();
+                } else {
+                    this.showAuth();
+                }
+            },
+
+            showAuth() {
+                document.getElementById('authContainer').classList.add('active');
+                document.getElementById('appContainer').style.display = 'none';
+            },
+
+            showApp() {
+                document.getElementById('authContainer').classList.remove('active');
+                document.getElementById('appContainer').style.display = 'flex';
+                document.getElementById('userEmail').textContent = this.user.email;
+            },
+
+            async handleLogin() {
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                const errorDiv = document.getElementById('authError');
+                const loadingDiv = document.getElementById('authLoading');
+
+                if (!email || !password) {
+                    errorDiv.textContent = 'Please enter email and password';
+                    return;
+                }
+
+                loadingDiv.style.display = 'block';
+                errorDiv.textContent = '';
+
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+                loadingDiv.style.display = 'none';
+
+                if (error) {
+                    errorDiv.textContent = error.message;
+                    return;
+                }
+
+                this.user = data.user;
+                this.showApp();
+                await this.loadData();
+                this.setupRealtimeSubscriptions();
+            },
+
+            async handleLogout() {
+                await supabase.auth.signOut();
+                this.user = null;
+                this.showAuth();
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+            },
+
+            showSignup() {
+                alert('Contact Mae (yamanatrucks@gmail.com) to be added to the system');
+            },
+
+            async loadData() {
+                console.log('Loading data from Supabase...');
+
+                // Load banks
+                const { data: banksData } = await supabase.from('banks').select('*');
+                this.data.banks = banksData || [];
+
+                // Load payees
+                const { data: payeesData } = await supabase.from('payees').select('*');
+                this.data.payees = payeesData || [];
+
+                // Load expense types
+                const { data: expenseTypesData } = await supabase.from('expense_types').select('*');
+                this.data.expenseTypes = expenseTypesData || [];
+
+                // Load transactions
+                const { data: transactionsData } = await supabase.from('transactions').select('*').order('created_at', { ascending: false });
+                this.data.transactions = transactionsData || [];
+
+                this.populateDropdowns();
+                this.updateDashboard();
+                this.refreshTables();
+            },
+
+            setupRealtimeSubscriptions() {
+                // Subscribe to real-time updates
+                supabase.channel('public:transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+                    this.loadData();
+                }).subscribe();
+            },
+
+            populateDropdowns() {
+                // Banks
+                const bankSelect = document.getElementById('bank');
+                bankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
+                this.data.banks.forEach(b => {
+                    bankSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                });
+
+                // Payees
+                const payeeSelect = document.getElementById('payee');
+                payeeSelect.innerHTML = '<option value="">-- Select Payee --</option>';
+                this.data.payees.forEach(p => {
+                    payeeSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+
+                // Expense Types
+                const expenseSelect = document.getElementById('expenseType');
+                expenseSelect.innerHTML = '<option value="">-- Select Expense Type --</option>';
+                this.data.expenseTypes.forEach(e => {
+                    expenseSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+                });
+            },
+
+            async saveTransaction(e) {
+                e.preventDefault();
+
+                const refNumber = document.getElementById('refNumber').value;
+                const date = document.getElementById('transDate').value;
+                const bankId = document.getElementById('bank').value;
+                const payeeId = document.getElementById('payee').value;
+                const amount = document.getElementById('amount').value;
+                const expenseTypeId = document.getElementById('expenseType').value;
+                const purpose = document.getElementById('purpose').value;
+                const remarks = document.getElementById('remarks').value;
+
+                if (!date || !bankId || !payeeId || !amount || !expenseTypeId) {
+                    this.showToast('Please fill all required fields', 'error');
+                    return;
+                }
+
+                const { error } = await supabase.from('transactions').insert([{
+                    ref_number: refNumber,
+                    trans_date: date,
+                    bank_id: bankId,
+                    payee_id: payeeId,
+                    amount: parseFloat(amount),
+                    expense_type_id: expenseTypeId,
+                    purpose,
+                    remarks,
+                    status: 'Successful',
+                    encoded_by: this.user.id
+                }]);
+
+                if (error) {
+                    this.showToast('Error saving transaction: ' + error.message, 'error');
+                    return;
+                }
+
+                this.showToast('Transaction saved successfully!', 'success');
+                document.getElementById('transactionForm').reset();
+                await this.generateRefNumber();
+                await this.loadData();
+            },
+
+            async generateRefNumber() {
+                const { data } = await supabase.from('control_number_tracker').select('last_transaction_number').limit(1).single();
+                if (data) {
+                    const nextNum = data.last_transaction_number + 1;
+                    document.getElementById('refNumber').value = `YAMANA${String(nextNum).padStart(4, '0')}`;
+                    await supabase.from('control_number_tracker').update({ last_transaction_number: nextNum }).eq('id', data.id);
+                }
+            },
+
+            updateDashboard() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayTransactions = this.data.transactions.filter(t => t.trans_date === today);
+                const todayAmount = todayTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                document.getElementById('todayCount').textContent = todayTransactions.length;
+                document.getElementById('todayAmount').textContent = `₱${todayAmount.toFixed(2)}`;
+
+                const currentMonth = new Date().toISOString().substring(0, 7);
+                const monthTransactions = this.data.transactions.filter(t => t.trans_date.substring(0, 7) === currentMonth);
+                const monthAmount = monthTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+                document.getElementById('monthAmount').textContent = `₱${monthAmount.toFixed(2)}`;
+
+                // Recent transactions
+                const recent = this.data.transactions.slice(0, 5);
+                let html = '';
+                recent.forEach(t => {
+                    const bank = this.data.banks.find(b => b.id === t.bank_id);
+                    const payee = this.data.payees.find(p => p.id === t.payee_id);
+                    html += `<tr>
+                        <td><strong>${t.ref_number}</strong></td>
+                        <td>${t.trans_date}</td>
+                        <td>${bank ? bank.name : '-'}</td>
+                        <td>${payee ? payee.name : '-'}</td>
+                        <td style="text-align: right;">₱${parseFloat(t.amount).toFixed(2)}</td>
+                    </tr>`;
+                });
+                document.getElementById('dashboardTableBody').innerHTML = html || '<tr><td colspan="5">No transactions</td></tr>';
+            },
+
+            refreshTables() {
+                // Transactions table
+                let html = '';
+                this.data.transactions.forEach(t => {
+                    const bank = this.data.banks.find(b => b.id === t.bank_id);
+                    const payee = this.data.payees.find(p => p.id === t.payee_id);
+                    html += `<tr>
+                        <td><strong>${t.ref_number}</strong></td>
+                        <td>${t.trans_date}</td>
+                        <td>${bank ? bank.name : '-'}</td>
+                        <td>${payee ? payee.name : '-'}</td>
+                        <td style="text-align: right;">₱${parseFloat(t.amount).toFixed(2)}</td>
+                        <td>${t.status}</td>
+                    </tr>`;
+                });
+                document.getElementById('transactionsTableBody').innerHTML = html || '<tr><td colspan="6">No transactions</td></tr>';
+
+                // Banks table
+                html = '';
+                this.data.banks.forEach(b => {
+                    html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="app.deleteBank('${b.id}')">Delete</button></td></tr>`;
+                });
+                document.getElementById('banksTableBody').innerHTML = html || '<tr><td colspan="2">No banks</td></tr>';
+
+                // Payees table
+                html = '';
+                this.data.payees.forEach(p => {
+                    html += `<tr><td>${p.name}</td><td>-</td><td><button class="btn btn-secondary" onclick="app.deletePayee('${p.id}')">Delete</button></td></tr>`;
+                });
+                document.getElementById('payeesTableBody').innerHTML = html || '<tr><td colspan="3">No payees</td></tr>';
+
+                // Expense types table
+                html = '';
+                this.data.expenseTypes.forEach(e => {
+                    html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="app.deleteExpenseType('${e.id}')">Delete</button></td></tr>`;
+                });
+                document.getElementById('expenseTypesTableBody').innerHTML = html || '<tr><td colspan="2">No expense types</td></tr>';
+            },
+
+            async deleteBank(id) {
+                if (!confirm('Delete this bank?')) return;
+                await supabase.from('banks').delete().eq('id', id);
+                await this.loadData();
+            },
+
+            async deletePayee(id) {
+                if (!confirm('Delete this payee?')) return;
+                await supabase.from('payees').delete().eq('id', id);
+                await this.loadData();
+            },
+
+            async deleteExpenseType(id) {
+                if (!confirm('Delete this expense type?')) return;
+                await supabase.from('expense_types').delete().eq('id', id);
+                await this.loadData();
+            },
+
+            addBankForm() {
+                const name = prompt('Enter bank name:');
+                if (name) this.addBank(name);
+            },
+
+            async addBank(name) {
+                const { error } = await supabase.from('banks').insert([{ name }]);
+                if (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } else {
+                    this.showToast('Bank added!', 'success');
+                    await this.loadData();
+                }
+            },
+
+            addPayeeForm() {
+                const name = prompt('Enter payee name:');
+                if (name) this.addPayee(name);
+            },
+
+            async addPayee(name) {
+                const { error } = await supabase.from('payees').insert([{ name }]);
+                if (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } else {
+                    this.showToast('Payee added!', 'success');
+                    await this.loadData();
+                }
+            },
+
+            addExpenseTypeForm() {
+                const name = prompt('Enter expense type:');
+                if (name) this.addExpenseType(name);
+            },
+
+            async addExpenseType(name) {
+                const { error } = await supabase.from('expense_types').insert([{ name }]);
+                if (error) {
+                    this.showToast('Error: ' + error.message, 'error');
+                } else {
+                    this.showToast('Expense type added!', 'success');
+                    await this.loadData();
+                }
+            },
+
+            async importCSV() {
+                const fileInput = document.getElementById('csvFile');
+                const file = fileInput.files[0];
+                if (!file) {
+                    this.showToast('Please select a file', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const csv = e.target.result;
+                    const lines = csv.split('\n');
+                    const headers = lines[0].split(',');
+                    const rows = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        if (lines[i].trim()) {
+                            const values = lines[i].split(',');
+                            const row = {};
+                            headers.forEach((h, idx) => {
+                                row[h.trim()] = values[idx] ? values[idx].trim() : '';
+                            });
+                            rows.push(row);
+                        }
+                    }
+
+                    // Insert rows
+                    for (const row of rows) {
+                        const bank = this.data.banks.find(b => b.name === row.bank);
+                        const payee = this.data.payees.find(p => p.name === row.payee);
+                        const expenseType = this.data.expenseTypes.find(e => e.name === row.expense_type);
+
+                        if (bank && payee && expenseType) {
+                            await supabase.from('transactions').insert([{
+                                ref_number: `IMPORT-${Date.now()}-${Math.random()}`,
+                                trans_date: row.date,
+                                bank_id: bank.id,
+                                payee_id: payee.id,
+                                amount: parseFloat(row.amount),
+                                expense_type_id: expenseType.id,
+                                purpose: row.purpose || '',
+                                status: 'Successful',
+                                encoded_by: this.user.id
+                            }]);
+                        }
+                    }
+
+                    this.showToast(`Imported ${rows.length} transactions!`, 'success');
+                    await this.loadData();
+                    fileInput.value = '';
+                };
+                reader.readAsText(file);
+            },
+
+            navigateTo(section) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                if (section === 'new-transaction') {
+                    this.generateRefNumber();
+                    document.getElementById('transDate').valueAsDate = new Date();
+                }
+            },
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
