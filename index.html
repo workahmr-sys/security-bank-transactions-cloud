@@ -523,8 +523,83 @@
 
                 <!-- MASTER DATA SECTION -->
                 <div id="master-data" class="section">
-                    <h2 class="section-title">Master Data</h2>
-                    <p>Banks, Payees, and Expense Types</p>
+                    <h2 class="section-title">Master Data Management</h2>
+
+                    <!-- BANKS -->
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🏦 Banks</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="newBankName" placeholder="Bank name" style="max-width: 300px;">
+                            <button class="btn btn-primary" onclick="window.appInstance.addBank()">+ Add Bank</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+                                <tbody id="banksTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PAYEE CATEGORIES -->
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">📂 Payee Categories</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="newCategoryName" placeholder="Category name" style="max-width: 300px;">
+                            <button class="btn btn-primary" onclick="window.appInstance.addCategory()">+ Add Category</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+                                <tbody id="categoriesTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PAYEES -->
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">👤 Payees</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="newPayeeName" placeholder="Payee name" style="max-width: 300px;">
+                            <button class="btn btn-primary" onclick="window.appInstance.addPayee()">+ Add Payee</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
+                                <tbody id="payeesTable"><tr><td colspan="3">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- EXPENSE TYPES -->
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">💰 Expense Types</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="newExpenseName" placeholder="Expense type" style="max-width: 300px;">
+                            <button class="btn btn-primary" onclick="window.appInstance.addExpenseType()">+ Add Expense Type</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
+                                <tbody id="expenseTypesTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PLATE NUMBERS -->
+                    <div style="margin-bottom: 3rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🚗 Plate Numbers</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <input type="text" id="newPlateNumber" placeholder="Plate number" style="max-width: 200px;">
+                            <input type="text" id="newPlateDriver" placeholder="Driver name" style="max-width: 200px;">
+                            <button class="btn btn-primary" onclick="window.appInstance.addPlate()">+ Add Plate</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead><tr><th>Plate Number</th><th>Driver</th><th>Actions</th></tr></thead>
+                                <tbody id="platesTable"><tr><td colspan="3">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -548,7 +623,7 @@
             window.appInstance = {
                 user: null,
                 supabase: supabase,
-                data: { transactions: [], banks: [], payees: [], expenseTypes: [] },
+                data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [] },
 
                 async init() {
                     const { data: { user } } = await supabase.auth.getUser();
@@ -606,14 +681,19 @@
                     const { data: payees } = await supabase.from('payees').select('*');
                     const { data: expenseTypes } = await supabase.from('expense_types').select('*');
                     const { data: transactions } = await supabase.from('transactions').select('*').order('created_at', { ascending: false });
+                    const { data: plates } = await supabase.from('plates').select('*');
+                    const { data: categories } = await supabase.from('payee_categories').select('*');
 
                     this.data.banks = banks || [];
                     this.data.payees = payees || [];
                     this.data.expenseTypes = expenseTypes || [];
                     this.data.transactions = transactions || [];
+                    this.data.plates = plates || [];
+                    this.data.payeeCategories = categories || [];
 
                     this.populateDropdowns();
                     this.updateDashboard();
+                    this.refreshMasterDataTables();
                 },
 
                 populateDropdowns() {
@@ -692,6 +772,10 @@
                         document.getElementById('transDate').valueAsDate = new Date();
                         document.getElementById('refNumber').value = 'YAMANA' + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
                     }
+
+                    if (section === 'master-data') {
+                        this.refreshMasterDataTables();
+                    }
                 },
 
                 showToast(message, type = 'info') {
@@ -700,6 +784,162 @@
                     toast.textContent = message;
                     document.body.appendChild(toast);
                     setTimeout(() => toast.remove(), 3000);
+                },
+
+                // ===== BANKS =====
+                async addBank() {
+                    const name = document.getElementById('newBankName').value.trim();
+                    if (!name) {
+                        this.showToast('Enter bank name', 'error');
+                        return;
+                    }
+                    const { error } = await supabase.from('banks').insert([{ name }]);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Bank added!', 'success');
+                        document.getElementById('newBankName').value = '';
+                        await this.loadData();
+                    }
+                },
+
+                async deleteBank(id) {
+                    if (!confirm('Delete this bank?')) return;
+                    await supabase.from('banks').delete().eq('id', id);
+                    await this.loadData();
+                },
+
+                // ===== PAYEE CATEGORIES =====
+                async addCategory() {
+                    const name = document.getElementById('newCategoryName').value.trim();
+                    if (!name) {
+                        this.showToast('Enter category name', 'error');
+                        return;
+                    }
+                    const { error } = await supabase.from('payee_categories').insert([{ name }]);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Category added!', 'success');
+                        document.getElementById('newCategoryName').value = '';
+                        await this.loadData();
+                    }
+                },
+
+                async deleteCategory(id) {
+                    if (!confirm('Delete this category?')) return;
+                    await supabase.from('payee_categories').delete().eq('id', id);
+                    await this.loadData();
+                },
+
+                // ===== PAYEES =====
+                async addPayee() {
+                    const name = document.getElementById('newPayeeName').value.trim();
+                    if (!name) {
+                        this.showToast('Enter payee name', 'error');
+                        return;
+                    }
+                    const { error } = await supabase.from('payees').insert([{ name }]);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Payee added!', 'success');
+                        document.getElementById('newPayeeName').value = '';
+                        await this.loadData();
+                    }
+                },
+
+                async deletePayee(id) {
+                    if (!confirm('Delete this payee?')) return;
+                    await supabase.from('payees').delete().eq('id', id);
+                    await this.loadData();
+                },
+
+                // ===== EXPENSE TYPES =====
+                async addExpenseType() {
+                    const name = document.getElementById('newExpenseName').value.trim();
+                    if (!name) {
+                        this.showToast('Enter expense type', 'error');
+                        return;
+                    }
+                    const { error } = await supabase.from('expense_types').insert([{ name }]);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Expense type added!', 'success');
+                        document.getElementById('newExpenseName').value = '';
+                        await this.loadData();
+                    }
+                },
+
+                async deleteExpenseType(id) {
+                    if (!confirm('Delete this expense type?')) return;
+                    await supabase.from('expense_types').delete().eq('id', id);
+                    await this.loadData();
+                },
+
+                // ===== PLATES =====
+                async addPlate() {
+                    const plateNumber = document.getElementById('newPlateNumber').value.trim();
+                    const driver = document.getElementById('newPlateDriver').value.trim();
+                    if (!plateNumber) {
+                        this.showToast('Enter plate number', 'error');
+                        return;
+                    }
+                    const { error } = await supabase.from('plates').insert([{ plate_number: plateNumber, assigned_driver: driver }]);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                    } else {
+                        this.showToast('Plate added!', 'success');
+                        document.getElementById('newPlateNumber').value = '';
+                        document.getElementById('newPlateDriver').value = '';
+                        await this.loadData();
+                    }
+                },
+
+                async deletePlate(id) {
+                    if (!confirm('Delete this plate?')) return;
+                    await supabase.from('plates').delete().eq('id', id);
+                    await this.loadData();
+                },
+
+                // ===== REFRESH MASTER DATA TABLES =====
+                refreshMasterDataTables() {
+                    // Banks
+                    let html = '';
+                    this.data.banks.forEach(b => {
+                        html += `<tr><td>${b.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteBank('${b.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                    });
+                    document.getElementById('banksTable').innerHTML = html || '<tr><td colspan="2">No banks</td></tr>';
+
+                    // Categories
+                    html = '';
+                    this.data.payeeCategories.forEach(c => {
+                        html += `<tr><td>${c.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteCategory('${c.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                    });
+                    document.getElementById('categoriesTable').innerHTML = html || '<tr><td colspan="2">No categories</td></tr>';
+
+                    // Payees
+                    html = '';
+                    this.data.payees.forEach(p => {
+                        const category = this.data.payeeCategories.find(c => c.id === p.category);
+                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                    });
+                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="3">No payees</td></tr>';
+
+                    // Expense Types
+                    html = '';
+                    this.data.expenseTypes.forEach(e => {
+                        html += `<tr><td>${e.name}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deleteExpenseType('${e.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                    });
+                    document.getElementById('expenseTypesTable').innerHTML = html || '<tr><td colspan="2">No expense types</td></tr>';
+
+                    // Plates
+                    html = '';
+                    this.data.plates.forEach(p => {
+                        html += `<tr><td><strong>${p.plate_number}</strong></td><td>${p.assigned_driver || '-'}</td><td><button class="btn btn-secondary" onclick="window.appInstance.deletePlate('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Delete</button></td></tr>`;
+                    });
+                    document.getElementById('platesTable').innerHTML = html || '<tr><td colspan="3">No plates</td></tr>';
                 }
             };
 
