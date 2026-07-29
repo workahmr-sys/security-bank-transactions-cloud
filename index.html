@@ -431,19 +431,19 @@
             </div>
 
             <!-- Bank Accounts Section -->
-            <div id="bankAccountSection" style="background: #f5f5f5; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-                <h4 style="margin-top: 0; color: #1a3a52;">Payment Accounts for This Payee</h4>
-                <div id="bankAccountsList" style="margin-bottom: 1rem; min-height: 20px;">
+            <div id="bankAccountSection" style="background: #f5f5f5; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid #ddd;">
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #1a3a52; font-size: 1rem;">Payment Accounts for This Payee</h4>
+                <div id="bankAccountsList" style="margin-bottom: 1rem; min-height: 30px; border: 1px dashed #ddd; padding: 0.75rem; border-radius: 4px; background: white;">
                     <p style="color: #999; font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
-                    <select id="bankSelect" style="width: 100%;">
+                    <select id="bankSelect" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
                         <option value="">-- Select Bank --</option>
                     </select>
-                    <input type="text" id="accountNumberInput" placeholder="Account Number (e.g., 123-456-7)" style="width: 100%;">
+                    <input type="text" id="accountNumberInput" placeholder="Account Number (e.g., 123-456-7)" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
                 </div>
-                <button class="btn btn-secondary" onclick="window.appInstance.addBankAccount()" style="width: 100%;">Add Account</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.addBankAccount()" style="width: 100%;">+ Add Account</button>
             </div>
 
             <!-- Notes -->
@@ -1060,14 +1060,16 @@
                         return;
                     }
                     
-                    let html = '<div style="background: white; border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem;">';
+                    let html = '';
                     this.tempBankAccounts.forEach((acc, idx) => {
-                        html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <div><strong>${acc.bankName}</strong> - ${acc.accountNumber}</div>
-                            <button class="btn btn-secondary" onclick="window.appInstance.removeBankAccount(${idx})" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #dc3545;">Remove</button>
+                        html += `<div style="background: white; border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: var(--color-primary);">${acc.bankName}</strong><br>
+                                <span style="color: #666; font-size: 0.9rem;">Account: ${acc.accountNumber}</span>
+                            </div>
+                            <button class="btn btn-secondary" onclick="window.appInstance.removeBankAccount(${idx})" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; cursor: pointer;">Delete</button>
                         </div>`;
                     });
-                    html += '</div>';
                     list.innerHTML = html;
                 },
 
