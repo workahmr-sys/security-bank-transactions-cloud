@@ -32,6 +32,21 @@
             --transition: all 0.2s ease;
         }
 
+        :root.dark-mode {
+            --color-primary: #0f1f2e;
+            --color-primary-light: #1a3a52;
+            --color-secondary: #17a2b8;
+            --color-bg-main: #0d0d0d;
+            --color-bg-card: #1a1a1a;
+            --color-bg-hover: #2a2a2a;
+            --color-border: #333333;
+            --color-text-primary: #e0e0e0;
+            --color-text-secondary: #a0a0a0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
         html, body {
             height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -511,6 +526,7 @@
             <h1>🏦 Security Bank Transactions</h1>
             <div class="user-info">
                 <span id="userEmail"></span>
+                <button onclick="window.appInstance.toggleTheme()" id="themeToggle" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0.5rem;">🌙</button>
                 <button onclick="window.appInstance.handleLogout()">Logout</button>
             </div>
         </header>
@@ -780,6 +796,7 @@
                 tempBankAccounts: [],
 
                 async init() {
+                    this.initTheme();
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
                         this.user = user;
@@ -820,6 +837,34 @@
                     this.user = data.user;
                     this.showApp();
                     await this.loadData();
+                },
+
+                toggleTheme() {
+                    const html = document.documentElement;
+                    const isDarkMode = html.classList.contains('dark-mode');
+                    
+                    if (isDarkMode) {
+                        html.classList.remove('dark-mode');
+                        document.getElementById('themeToggle').textContent = '🌙';
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        html.classList.add('dark-mode');
+                        document.getElementById('themeToggle').textContent = '☀️';
+                        localStorage.setItem('theme', 'dark');
+                    }
+                },
+
+                initTheme() {
+                    const savedTheme = localStorage.getItem('theme') || 'light';
+                    const html = document.documentElement;
+                    
+                    if (savedTheme === 'dark') {
+                        html.classList.add('dark-mode');
+                        document.getElementById('themeToggle').textContent = '☀️';
+                    } else {
+                        html.classList.remove('dark-mode');
+                        document.getElementById('themeToggle').textContent = '🌙';
+                    }
                 },
 
                 async handleLogout() {
