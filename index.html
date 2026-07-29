@@ -697,8 +697,8 @@
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th style="width: 150px;">Actions</th></tr></thead>
-                                <tbody id="payeesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No payees added yet</td></tr></tbody>
+                                <thead><tr><th>Name</th><th>Category</th><th>Bank Accounts</th><th>Notes</th><th style="width: 150px;">Actions</th></tr></thead>
+                                <tbody id="payeesTable"><tr><td colspan="5" style="text-align: center; padding: 2rem;">No payees added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -763,7 +763,7 @@
             window.appInstance = {
                 user: null,
                 supabase: supabase,
-                data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [] },
+                data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [], payeeAccounts: [] },
                 editingId: null,
                 tempBankAccounts: [],
 
@@ -825,6 +825,7 @@
                     const { data: transactions } = await supabase.from('transactions').select('*').order('created_at', { ascending: false });
                     const { data: plates } = await supabase.from('plates').select('*');
                     const { data: categories } = await supabase.from('payee_categories').select('*');
+                    const { data: payeeAccounts } = await supabase.from('payee_bank_accounts').select('*, banks(name)');
 
                     this.data.banks = banks || [];
                     this.data.payees = payees || [];
@@ -832,6 +833,7 @@
                     this.data.transactions = transactions || [];
                     this.data.plates = plates || [];
                     this.data.payeeCategories = categories || [];
+                    this.data.payeeAccounts = payeeAccounts || [];
 
                     this.populateDropdowns();
                     this.updateDashboard();
@@ -1485,10 +1487,25 @@
                     html = '';
                     this.data.payees.forEach(p => {
                         const category = this.data.payeeCategories.find(c => c.id === p.category);
-                        const accountInfo = p.no_bank_account ? 'Cash/Direct' : '(has bank accounts)';
-                        html += `<tr><td>${p.name}</td><td>${category ? category.name : '-'}</td><td><span style="color: #666; font-size: 0.85rem;">${accountInfo}</span></td><td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td></tr>`;
+                        
+                        // Get bank accounts for this payee
+                        let bankAccountsDisplay = 'Direct Payment / Cash';
+                        if (!p.no_bank_account) {
+                            const accounts = this.data.payeeAccounts.filter(acc => acc.payee_id === p.id);
+                            if (accounts.length > 0) {
+                                bankAccountsDisplay = accounts.map(acc => `${acc.banks.name}: ${acc.account_number}`).join(', ');
+                            }
+                        }
+                        
+                        html += `<tr>
+                            <td>${p.name}</td>
+                            <td>${category ? category.name : '-'}</td>
+                            <td style="color: ${p.no_bank_account ? '#17a2b8' : '#333'}; font-size: 0.9rem;">${bankAccountsDisplay}</td>
+                            <td>${p.notes ? p.notes : '-'}</td>
+                            <td><button class="btn btn-secondary" onclick="window.appInstance.openPayeeModal('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button><button class="btn btn-secondary" onclick="window.appInstance.deletePayee('${p.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #dc3545;">Delete</button></td>
+                        </tr>`;
                     });
-                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
+                    document.getElementById('payeesTable').innerHTML = html || '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No payees added yet</td></tr>';
 
                     // Expense Types
                     html = '';
