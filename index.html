@@ -1061,9 +1061,14 @@
                     if (!this.tempBankAccounts) this.tempBankAccounts = [];
                     this.tempBankAccounts.push({ bankId, bankName: bank.name, accountNumber });
                     
+                    // Auto-uncheck "No Bank Account" when user adds an account
+                    document.getElementById('noBankAccountCheck').checked = false;
+                    this.toggleBankAccountSection();
+                    
                     this.refreshBankAccountsList();
                     document.getElementById('bankSelect').value = '';
                     document.getElementById('accountNumberInput').value = '';
+                    this.showToast('Account added!', 'success');
                 },
 
                 refreshBankAccountsList() {
@@ -1095,10 +1100,15 @@
                 async savePayeeModal() {
                     const name = document.getElementById('payeeModalInput').value.trim();
                     const categoryId = document.getElementById('payeeCategorySelect').value;
-                    const noBankAccount = document.getElementById('noBankAccountCheck').checked;
+                    let noBankAccount = document.getElementById('noBankAccountCheck').checked;
                     const notes = document.getElementById('payeeNotesInput').value.trim();
                     
                     if (!name) { this.showToast('Enter payee name', 'error'); return; }
+                    
+                    // If user added bank accounts, automatically uncheck "no bank account"
+                    if (this.tempBankAccounts && this.tempBankAccounts.length > 0) {
+                        noBankAccount = false;
+                    }
                     
                     let payeeId = this.editingId;
                     
@@ -1121,7 +1131,11 @@
                                 bank_id: acc.bankId,
                                 account_number: acc.accountNumber
                             }));
-                            await supabase.from('payee_bank_accounts').insert(accountsToInsert);
+                            const { error: insertError } = await supabase.from('payee_bank_accounts').insert(accountsToInsert);
+                            if (insertError) {
+                                this.showToast('Error saving accounts: ' + insertError.message, 'error');
+                                return;
+                            }
                         }
                     }
                     
