@@ -528,10 +528,10 @@
                     <!-- BANKS -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🏦 Banks</h3>
-                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <input type="text" id="newBankName" placeholder="Enter bank name" style="flex: 1; min-width: 250px;">
-                            <button class="btn btn-primary" onclick="window.appInstance.addBank()">+ Add Bank</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📥 Import CSV</button>
+                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
+                            <input type="text" id="newBankName" placeholder="Enter bank name">
+                            <button class="btn btn-primary" onclick="window.appInstance.addBank()" style="white-space: nowrap;">+ Add Bank</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
                             <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
                         </div>
                         <div class="table-wrapper">
@@ -545,10 +545,10 @@
                     <!-- PAYEE CATEGORIES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">📂 Payee Categories</h3>
-                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <input type="text" id="newCategoryName" placeholder="Enter category name" style="flex: 1; min-width: 250px;">
-                            <button class="btn btn-primary" onclick="window.appInstance.addCategory()">+ Add Category</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📥 Import CSV</button>
+                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
+                            <input type="text" id="newCategoryName" placeholder="Enter category name">
+                            <button class="btn btn-primary" onclick="window.appInstance.addCategory()" style="white-space: nowrap;">+ Add Category</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
                             <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
                         </div>
                         <div class="table-wrapper">
@@ -562,10 +562,10 @@
                     <!-- PAYEES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">👤 Payees</h3>
-                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <input type="text" id="newPayeeName" placeholder="Enter payee name" style="flex: 1; min-width: 250px;">
-                            <button class="btn btn-primary" onclick="window.appInstance.addPayee()">+ Add Payee</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📥 Import CSV</button>
+                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
+                            <input type="text" id="newPayeeName" placeholder="Enter payee name">
+                            <button class="btn btn-primary" onclick="window.appInstance.addPayee()" style="white-space: nowrap;">+ Add Payee</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
                             <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
                         </div>
                         <div class="table-wrapper">
@@ -579,10 +579,10 @@
                     <!-- EXPENSE TYPES -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">💰 Expense Types</h3>
-                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <input type="text" id="newExpenseName" placeholder="Enter expense type" style="flex: 1; min-width: 250px;">
-                            <button class="btn btn-primary" onclick="window.appInstance.addExpenseType()">+ Add Expense Type</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📥 Import CSV</button>
+                        <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
+                            <input type="text" id="newExpenseName" placeholder="Enter expense type">
+                            <button class="btn btn-primary" onclick="window.appInstance.addExpenseType()" style="white-space: nowrap;">+ Add Expense Type</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
                             <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
                         </div>
                         <div class="table-wrapper">
@@ -596,11 +596,11 @@
                     <!-- PLATE NUMBERS -->
                     <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🚗 Plate Numbers</h3>
-                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <input type="text" id="newPlateNumber" placeholder="Plate number" style="min-width: 150px;">
-                            <input type="text" id="newPlateDriver" placeholder="Driver name" style="min-width: 150px;">
-                            <button class="btn btn-primary" onclick="window.appInstance.addPlate()">+ Add Plate</button>
-                            <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📥 Import CSV</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 0.75rem; margin-bottom: 1rem; align-items: flex-start;">
+                            <input type="text" id="newPlateNumber" placeholder="Plate number">
+                            <input type="text" id="newPlateDriver" placeholder="Driver name">
+                            <button class="btn btn-primary" onclick="window.appInstance.addPlate()" style="white-space: nowrap;">+ Add Plate</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()" style="white-space: nowrap;">📥 Import CSV</button>
                             <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
                         </div>
                         <div class="table-wrapper">
