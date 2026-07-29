@@ -526,77 +526,87 @@
                     <h2 class="section-title">Master Data Management</h2>
 
                     <!-- BANKS -->
-                    <div style="margin-bottom: 3rem;">
+                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🏦 Banks</h3>
-                        <div style="margin-bottom: 1rem;">
-                            <input type="text" id="newBankName" placeholder="Bank name" style="max-width: 300px;">
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="newBankName" placeholder="Enter bank name" style="flex: 1; min-width: 250px;">
                             <button class="btn btn-primary" onclick="window.appInstance.addBank()">+ Add Bank</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📥 Import CSV</button>
+                            <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-                                <tbody id="banksTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <tbody id="banksTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No banks added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- PAYEE CATEGORIES -->
-                    <div style="margin-bottom: 3rem;">
+                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">📂 Payee Categories</h3>
-                        <div style="margin-bottom: 1rem;">
-                            <input type="text" id="newCategoryName" placeholder="Category name" style="max-width: 300px;">
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="newCategoryName" placeholder="Enter category name" style="flex: 1; min-width: 250px;">
                             <button class="btn btn-primary" onclick="window.appInstance.addCategory()">+ Add Category</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📥 Import CSV</button>
+                            <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-                                <tbody id="categoriesTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <tbody id="categoriesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No categories added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- PAYEES -->
-                    <div style="margin-bottom: 3rem;">
+                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">👤 Payees</h3>
-                        <div style="margin-bottom: 1rem;">
-                            <input type="text" id="newPayeeName" placeholder="Payee name" style="max-width: 300px;">
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="newPayeeName" placeholder="Enter payee name" style="flex: 1; min-width: 250px;">
                             <button class="btn btn-primary" onclick="window.appInstance.addPayee()">+ Add Payee</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📥 Import CSV</button>
+                            <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th>Category</th><th>Actions</th></tr></thead>
-                                <tbody id="payeesTable"><tr><td colspan="3">Loading...</td></tr></tbody>
+                                <thead><tr><th>Name</th><th>Category</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <tbody id="payeesTable"><tr><td colspan="3" style="text-align: center; padding: 2rem;">No payees added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- EXPENSE TYPES -->
-                    <div style="margin-bottom: 3rem;">
+                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">💰 Expense Types</h3>
-                        <div style="margin-bottom: 1rem;">
-                            <input type="text" id="newExpenseName" placeholder="Expense type" style="max-width: 300px;">
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="newExpenseName" placeholder="Enter expense type" style="flex: 1; min-width: 250px;">
                             <button class="btn btn-primary" onclick="window.appInstance.addExpenseType()">+ Add Expense Type</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📥 Import CSV</button>
+                            <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Name</th><th>Actions</th></tr></thead>
-                                <tbody id="expenseTypesTable"><tr><td colspan="2">Loading...</td></tr></tbody>
+                                <thead><tr><th>Name</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <tbody id="expenseTypesTable"><tr><td colspan="2" style="text-align: center; padding: 2rem;">No expense types added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
 
                     <!-- PLATE NUMBERS -->
-                    <div style="margin-bottom: 3rem;">
+                    <div style="margin-bottom: 3rem; background: white; padding: 1.5rem; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
                         <h3 style="margin-bottom: 1rem; color: var(--color-primary); font-size: 1.1rem;">🚗 Plate Numbers</h3>
-                        <div style="margin-bottom: 1rem;">
-                            <input type="text" id="newPlateNumber" placeholder="Plate number" style="max-width: 200px;">
-                            <input type="text" id="newPlateDriver" placeholder="Driver name" style="max-width: 200px;">
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <input type="text" id="newPlateNumber" placeholder="Plate number" style="min-width: 150px;">
+                            <input type="text" id="newPlateDriver" placeholder="Driver name" style="min-width: 150px;">
                             <button class="btn btn-primary" onclick="window.appInstance.addPlate()">+ Add Plate</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📥 Import CSV</button>
+                            <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
                         </div>
                         <div class="table-wrapper">
                             <table>
-                                <thead><tr><th>Plate Number</th><th>Driver</th><th>Actions</th></tr></thead>
-                                <tbody id="platesTable"><tr><td colspan="3">Loading...</td></tr></tbody>
+                                <thead><tr><th>Plate Number</th><th>Driver</th><th style="width: 100px;">Actions</th></tr></thead>
+                                <tbody id="platesTable"><tr><td colspan="3" style="text-align: center; padding: 2rem;">No plates added yet</td></tr></tbody>
                             </table>
                         </div>
                     </div>
@@ -776,6 +786,109 @@
                     if (section === 'master-data') {
                         this.refreshMasterDataTables();
                     }
+                },
+
+                // ===== CSV IMPORT FUNCTIONS =====
+                async importBanksCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        const nameIdx = headers.indexOf('name') >= 0 ? headers.indexOf('name') : 0;
+                        const name = values[nameIdx]?.trim();
+                        if (name) {
+                            await supabase.from('banks').insert([{ name }]);
+                        }
+                    }
+                    this.showToast('Banks imported!', 'success');
+                    await this.loadData();
+                    document.getElementById('bankCsvFile').value = '';
+                },
+
+                async importCategoriesCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        const nameIdx = headers.indexOf('name') >= 0 ? headers.indexOf('name') : 0;
+                        const name = values[nameIdx]?.trim();
+                        if (name) {
+                            await supabase.from('payee_categories').insert([{ name }]);
+                        }
+                    }
+                    this.showToast('Categories imported!', 'success');
+                    await this.loadData();
+                    document.getElementById('categoryCsvFile').value = '';
+                },
+
+                async importPayeesCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        const nameIdx = headers.indexOf('name') >= 0 ? headers.indexOf('name') : 0;
+                        const name = values[nameIdx]?.trim();
+                        if (name) {
+                            await supabase.from('payees').insert([{ name }]);
+                        }
+                    }
+                    this.showToast('Payees imported!', 'success');
+                    await this.loadData();
+                    document.getElementById('payeeCsvFile').value = '';
+                },
+
+                async importExpenseTypesCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        const nameIdx = headers.indexOf('name') >= 0 ? headers.indexOf('name') : 0;
+                        const name = values[nameIdx]?.trim();
+                        if (name) {
+                            await supabase.from('expense_types').insert([{ name }]);
+                        }
+                    }
+                    this.showToast('Expense types imported!', 'success');
+                    await this.loadData();
+                    document.getElementById('expenseCsvFile').value = '';
+                },
+
+                async importPlatesCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',');
+                        const plateIdx = headers.indexOf('plate') >= 0 ? headers.indexOf('plate') : headers.indexOf('plate_number') >= 0 ? headers.indexOf('plate_number') : 0;
+                        const driverIdx = headers.indexOf('driver') >= 0 ? headers.indexOf('driver') : 1;
+                        const plate = values[plateIdx]?.trim();
+                        const driver = values[driverIdx]?.trim();
+                        if (plate) {
+                            await supabase.from('plates').insert([{ plate_number: plate, assigned_driver: driver || '' }]);
+                        }
+                    }
+                    this.showToast('Plates imported!', 'success');
+                    await this.loadData();
+                    document.getElementById('plateCsvFile').value = '';
                 },
 
                 showToast(message, type = 'info') {
