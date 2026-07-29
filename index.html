@@ -398,13 +398,61 @@
         </div>
     </div>
 
-    <div id="payeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
-        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 500px;">
-            <h2 id="payeeModalTitle">Add Payee</h2>
+    <div id="payeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
+        <div style="background: white; padding: 2rem; border-radius: 6px; width: 90%; max-width: 600px; margin: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 id="payeeModalTitle">Add Payee</h2>
+                <button onclick="window.appInstance.closePayeeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- Name -->
             <div class="form-group">
                 <label>Payee Name *</label>
                 <input type="text" id="payeeModalInput" placeholder="e.g., Juan Dela Cruz">
             </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label>Category *</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select id="payeeCategorySelect" style="flex: 1;">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="window.appInstance.openCategoryModal()" style="white-space: nowrap;">+ Add New</button>
+                </div>
+            </div>
+
+            <!-- No Bank Account -->
+            <div class="form-group">
+                <label style="display: flex; align-items: center; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" id="noBankAccountCheck" onchange="window.appInstance.toggleBankAccountSection()" style="margin-right: 0.5rem;">
+                    No Bank Account (Direct Payment / Cash)
+                </label>
+            </div>
+
+            <!-- Bank Accounts Section -->
+            <div id="bankAccountSection" style="background: #f5f5f5; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <h4 style="margin-top: 0; color: #1a3a52;">Payment Accounts for This Payee</h4>
+                <div id="bankAccountsList" style="margin-bottom: 1rem; min-height: 20px;">
+                    <p style="color: #999; font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                    <select id="bankSelect" style="width: 100%;">
+                        <option value="">-- Select Bank --</option>
+                    </select>
+                    <input type="text" id="accountNumberInput" placeholder="Account Number (e.g., 123-456-7)" style="width: 100%;">
+                </div>
+                <button class="btn btn-secondary" onclick="window.appInstance.addBankAccount()" style="width: 100%;">Add Account</button>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="payeeNotesInput" placeholder="Additional notes" rows="3" style="width: 100%;"></textarea>
+            </div>
+
+            <!-- Buttons -->
             <div style="display: flex; gap: 0.75rem;">
                 <button class="btn btn-primary" onclick="window.appInstance.savePayeeModal()">Save</button>
                 <button class="btn btn-secondary" onclick="window.appInstance.closePayeeModal()">Cancel</button>
@@ -717,6 +765,7 @@
                 supabase: supabase,
                 data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [] },
                 editingId: null,
+                tempBankAccounts: [],
 
                 async init() {
                     const { data: { user } } = await supabase.auth.getUser();
@@ -934,26 +983,114 @@
 
                 openPayeeModal(id = null) {
                     this.editingId = id;
+                    this.tempBankAccounts = [];
                     document.getElementById('payeeModalTitle').textContent = id ? 'Edit Payee' : 'Add Payee';
-                    document.getElementById('payeeModalInput').value = id ? (this.data.payees.find(p => p.id === id)?.name || '') : '';
+                    
+                    // Populate category dropdown
+                    const categorySelect = document.getElementById('payeeCategorySelect');
+                    categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+                    this.data.payeeCategories.forEach(c => {
+                        categorySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                    
+                    // Populate bank dropdown
+                    const bankSelect = document.getElementById('bankSelect');
+                    bankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
+                    this.data.banks.forEach(b => {
+                        bankSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                    });
+                    
+                    if (id) {
+                        const payee = this.data.payees.find(p => p.id === id);
+                        document.getElementById('payeeModalInput').value = payee?.name || '';
+                        document.getElementById('payeeCategorySelect').value = payee?.category || '';
+                        document.getElementById('noBankAccountCheck').checked = payee?.no_bank_account || false;
+                        document.getElementById('payeeNotesInput').value = payee?.notes || '';
+                    } else {
+                        document.getElementById('payeeModalInput').value = '';
+                        document.getElementById('payeeCategorySelect').value = '';
+                        document.getElementById('noBankAccountCheck').checked = false;
+                        document.getElementById('payeeNotesInput').value = '';
+                        document.getElementById('accountNumberInput').value = '';
+                    }
+                    
+                    this.toggleBankAccountSection();
                     document.getElementById('payeeModal').style.display = 'flex';
                 },
 
                 closePayeeModal() {
                     document.getElementById('payeeModal').style.display = 'none';
                     this.editingId = null;
+                    this.tempBankAccounts = [];
+                },
+
+                toggleBankAccountSection() {
+                    const noBankAccount = document.getElementById('noBankAccountCheck').checked;
+                    const section = document.getElementById('bankAccountSection');
+                    section.style.display = noBankAccount ? 'none' : 'block';
+                },
+
+                addBankAccount() {
+                    const bankId = document.getElementById('bankSelect').value;
+                    const accountNumber = document.getElementById('accountNumberInput').value.trim();
+                    
+                    if (!bankId) {
+                        this.showToast('Select a bank', 'error');
+                        return;
+                    }
+                    
+                    if (!accountNumber) {
+                        this.showToast('Enter account number', 'error');
+                        return;
+                    }
+                    
+                    const bank = this.data.banks.find(b => b.id === bankId);
+                    if (!this.tempBankAccounts) this.tempBankAccounts = [];
+                    this.tempBankAccounts.push({ bankId, bankName: bank.name, accountNumber });
+                    
+                    this.refreshBankAccountsList();
+                    document.getElementById('bankSelect').value = '';
+                    document.getElementById('accountNumberInput').value = '';
+                },
+
+                refreshBankAccountsList() {
+                    const list = document.getElementById('bankAccountsList');
+                    if (!this.tempBankAccounts || this.tempBankAccounts.length === 0) {
+                        list.innerHTML = '<p style="color: #999; font-size: 0.9rem; margin: 0;">No bank accounts added yet</p>';
+                        return;
+                    }
+                    
+                    let html = '<div style="background: white; border-radius: 4px; padding: 0.75rem; margin-bottom: 0.5rem;">';
+                    this.tempBankAccounts.forEach((acc, idx) => {
+                        html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div><strong>${acc.bankName}</strong> - ${acc.accountNumber}</div>
+                            <button class="btn btn-secondary" onclick="window.appInstance.removeBankAccount(${idx})" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: #dc3545;">Remove</button>
+                        </div>`;
+                    });
+                    html += '</div>';
+                    list.innerHTML = html;
+                },
+
+                removeBankAccount(idx) {
+                    if (!this.tempBankAccounts) return;
+                    this.tempBankAccounts.splice(idx, 1);
+                    this.refreshBankAccountsList();
                 },
 
                 async savePayeeModal() {
                     const name = document.getElementById('payeeModalInput').value.trim();
+                    const categoryId = document.getElementById('payeeCategorySelect').value;
+                    const noBankAccount = document.getElementById('noBankAccountCheck').checked;
+                    const notes = document.getElementById('payeeNotesInput').value.trim();
+                    
                     if (!name) { this.showToast('Enter payee name', 'error'); return; }
                     
                     if (this.editingId) {
-                        const { error } = await supabase.from('payees').update({ name }).eq('id', this.editingId);
+                        const { error } = await supabase.from('payees').update({ name, category: categoryId, no_bank_account: noBankAccount, notes }).eq('id', this.editingId);
                         if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Payee updated!', 'success');
                     } else {
-                        const { error } = await supabase.from('payees').insert([{ name }]);
+                        const { error } = await supabase.from('payees').insert([{ name, category: categoryId, no_bank_account: noBankAccount, notes }]);
                         if (error) { this.showToast('Error: ' + error.message, 'error'); return; }
                         this.showToast('Payee added!', 'success');
                     }
