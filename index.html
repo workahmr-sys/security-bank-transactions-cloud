@@ -604,7 +604,8 @@
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🏦 Banks</h3>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openBankModal()">+ Add Bank</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📥 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.downloadBankSampleCSV()">📥 Sample CSV</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('bankCsvFile').click()">📤 Import CSV</button>
                                 <input type="file" id="bankCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importBanksCSV(event)">
                             </div>
                         </div>
@@ -622,7 +623,8 @@
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">📂 Payee Categories</h3>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openCategoryModal()">+ Add Category</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📥 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.downloadCategorySampleCSV()">📥 Sample CSV</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('categoryCsvFile').click()">📤 Import CSV</button>
                                 <input type="file" id="categoryCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importCategoriesCSV(event)">
                             </div>
                         </div>
@@ -640,7 +642,8 @@
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">👤 Payees</h3>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPayeeModal()">+ Add Payee</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📥 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.downloadPayeeSampleCSV()">📥 Sample CSV</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('payeeCsvFile').click()">📤 Import CSV</button>
                                 <input type="file" id="payeeCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPayeesCSV(event)">
                             </div>
                         </div>
@@ -658,7 +661,8 @@
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">💰 Expense Types</h3>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openExpenseModal()">+ Add Expense Type</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📥 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.downloadExpenseSampleCSV()">📥 Sample CSV</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('expenseCsvFile').click()">📤 Import CSV</button>
                                 <input type="file" id="expenseCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importExpenseTypesCSV(event)">
                             </div>
                         </div>
@@ -676,7 +680,8 @@
                             <h3 style="color: var(--color-primary); font-size: 1.1rem; margin: 0;">🚗 Plate Numbers</h3>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary" onclick="window.appInstance.openPlateModal()">+ Add Plate</button>
-                                <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📥 Import CSV</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.downloadPlateSampleCSV()">📥 Sample CSV</button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('plateCsvFile').click()">📤 Import CSV</button>
                                 <input type="file" id="plateCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importPlatesCSV(event)">
                             </div>
                         </div>
@@ -1024,6 +1029,45 @@
                     this.closePlateModal();
                     await this.loadData();
                     this.refreshMasterDataTables();
+                },
+
+                // ===== DOWNLOAD SAMPLE CSV FUNCTIONS =====
+                downloadBankSampleCSV() {
+                    const csv = 'name\nSecurity Bank\nBDO\nBPI\nPayMaya\nGCash';
+                    this.downloadCSV(csv, 'banks-sample.csv');
+                },
+
+                downloadCategorySampleCSV() {
+                    const csv = 'name\nDriver\nContractor\nSupplier\nVendor';
+                    this.downloadCSV(csv, 'payee-categories-sample.csv');
+                },
+
+                downloadPayeeSampleCSV() {
+                    const csv = 'name\nJuan Dela Cruz\nMaria Santos\nPedro Garcia\nAna Lopez';
+                    this.downloadCSV(csv, 'payees-sample.csv');
+                },
+
+                downloadExpenseSampleCSV() {
+                    const csv = 'name\nFuel\nMaintenance\nTolls\nSalary\nUtilities';
+                    this.downloadCSV(csv, 'expense-types-sample.csv');
+                },
+
+                downloadPlateSampleCSV() {
+                    const csv = 'plate,driver\nABC-123,Juan Dela Cruz\nDEF-456,Maria Santos\nGHI-789,Pedro Garcia';
+                    this.downloadCSV(csv, 'plates-sample.csv');
+                },
+
+                downloadCSV(csv, filename) {
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    this.showToast('Downloaded: ' + filename, 'success');
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
