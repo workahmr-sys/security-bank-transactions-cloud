@@ -776,7 +776,16 @@
 
                 <!-- TRANSACTIONS SECTION -->
                 <div id="transactions" class="section">
-                    <h2 class="section-title">Transaction History</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--color-secondary);">
+                        <h2 class="section-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">Transaction History</h2>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="window.appInstance.downloadTransactionSampleCSV()">📥 Sample CSV</button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('transactionCsvFile').click()">📤 Import CSV</button>
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportTransactionsCSV()">💾 Export CSV</button>
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportTransactionsPDF()">💾 Export PDF</button>
+                            <input type="file" id="transactionCsvFile" accept=".csv" style="display: none;" onchange="window.appInstance.importTransactionsCSV(event)">
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <input type="text" id="transactionSearchInput" placeholder="Search by payee, plate, expense type, purpose, account name, amount..." oninput="window.appInstance.refreshTransactionHistory()">
@@ -1831,6 +1840,14 @@
                     this.downloadCSV(csv, 'plates-sample.csv');
                 },
 
+                downloadTransactionSampleCSV() {
+                    const csv = 'control_number,date,account_name,bank,account_number,payee,plate_number,expense_type,purpose,amount\n'
+                        + 'YAMANA0001,2026-07-01,Juan Dela Cruz,BDO,123-456-7,Juan Dela Cruz,ABC-123,Cash Advance,Weekly cash advance,1000\n'
+                        + 'YAMANA0001,2026-07-01,Juan Dela Cruz,BDO,123-456-7,Pedro Mendoza,DEF-456,Cash Advance,Helper cash advance,1000\n'
+                        + 'YAMANA0002,2026-07-02,Maria Santos,GCash,0930597640,Maria Santos,GHI-789,Fuel,Diesel refill,1500';
+                    this.downloadCSV(csv, 'transactions-sample.csv');
+                },
+
                 downloadCSV(csv, filename) {
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                     const link = document.createElement('a');
@@ -1929,6 +1946,134 @@
                 exportPlatesPDF() {
                     const sortedPlates = [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number));
                     this.generateTablePDF('Plate Numbers', ['Plate Number', 'Driver'], sortedPlates.map(p => [p.plate_number, p.assigned_driver || '-']));
+                },
+
+                csvEscape(value) {
+                    return `"${String(value === null || value === undefined ? '' : value).replace(/"/g, '""')}"`;
+                },
+
+                exportTransactionsCSV() {
+                    const rows = [...this.data.transactions].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                    let csv = 'control_number,date,account_name,bank,account_number,payee,plate_number,expense_type,purpose,amount,status\n';
+                    rows.forEach(t => {
+                        csv += [
+                            t.control_number || t.ref_number, t.trans_date, t.account_name, t.bank, t.account_number,
+                            t.payee, t.plate_number, t.expense_type, t.purpose, t.amount, t.status
+                        ].map(v => this.csvEscape(v)).join(',') + '\n';
+                    });
+                    this.downloadCSV(csv, 'transactions-export.csv');
+                },
+
+                exportTransactionsPDF() {
+                    const rows = [...this.data.transactions].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                    const body = rows.map(t => [
+                        t.trans_date || '-',
+                        t.control_number || t.ref_number || '-',
+                        t.bank || '-',
+                        t.payee || '-',
+                        t.plate_number || '-',
+                        t.expense_type || '-',
+                        t.purpose || '-',
+                        `₱${(parseFloat(t.amount) || 0).toFixed(2)}`,
+                        t.status || '-'
+                    ]);
+                    this.generateTablePDF('Transaction History', ['Date', 'Control #', 'Bank', 'Payee', 'Plate', 'Expense Type', 'Purpose', 'Amount', 'Status'], body);
+                },
+
+                parseCSVLine(line) {
+                    const result = [];
+                    let cur = '';
+                    let inQuotes = false;
+                    for (let i = 0; i < line.length; i++) {
+                        const ch = line[i];
+                        if (inQuotes) {
+                            if (ch === '"') {
+                                if (line[i + 1] === '"') { cur += '"'; i++; }
+                                else { inQuotes = false; }
+                            } else {
+                                cur += ch;
+                            }
+                        } else {
+                            if (ch === '"') inQuotes = true;
+                            else if (ch === ',') { result.push(cur); cur = ''; }
+                            else cur += ch;
+                        }
+                    }
+                    result.push(cur);
+                    return result;
+                },
+
+                async importTransactionsCSV(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    const lines = text.split('\n').filter(l => l.trim());
+                    if (lines.length < 2) {
+                        this.showToast('CSV has no data rows', 'error');
+                        return;
+                    }
+                    const headers = this.parseCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+
+                    const colIdx = {
+                        control: headers.findIndex(h => h.includes('control')),
+                        date: headers.findIndex(h => h === 'date' || h.includes('trans_date')),
+                        accountName: headers.findIndex(h => h.includes('account_name')),
+                        bank: headers.findIndex(h => h === 'bank'),
+                        accountNumber: headers.findIndex(h => h.includes('account_number')),
+                        payee: headers.findIndex(h => h === 'payee'),
+                        plate: headers.findIndex(h => h.includes('plate')),
+                        expenseType: headers.findIndex(h => h.includes('expense')),
+                        purpose: headers.findIndex(h => h === 'purpose'),
+                        amount: headers.findIndex(h => h === 'amount'),
+                        status: headers.findIndex(h => h === 'status')
+                    };
+
+                    const counters = {};
+                    this.data.transactions.forEach(t => {
+                        const cn = t.control_number || t.ref_number;
+                        if (cn) counters[cn] = (counters[cn] || 0) + 1;
+                    });
+
+                    const rowsToInsert = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = this.parseCSVLine(lines[i]);
+                        const amount = parseFloat(colIdx.amount >= 0 ? values[colIdx.amount] : '') || 0;
+                        if (!amount) continue;
+
+                        const controlNumber = (colIdx.control >= 0 ? values[colIdx.control] : '').trim() || this.generateControlNumber();
+                        counters[controlNumber] = (counters[controlNumber] || 0) + 1;
+
+                        rowsToInsert.push({
+                            id: (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : `${controlNumber}-${Date.now()}-${i}`,
+                            ref_number: `${controlNumber}-${counters[controlNumber]}`,
+                            control_number: controlNumber,
+                            trans_date: colIdx.date >= 0 ? values[colIdx.date].trim() : '',
+                            account_name: colIdx.accountName >= 0 ? values[colIdx.accountName].trim() : '',
+                            bank: colIdx.bank >= 0 ? values[colIdx.bank].trim() : '',
+                            account_number: colIdx.accountNumber >= 0 ? values[colIdx.accountNumber].trim() : '',
+                            payee: colIdx.payee >= 0 ? values[colIdx.payee].trim() : '',
+                            plate_number: colIdx.plate >= 0 ? values[colIdx.plate].trim() : '',
+                            expense_type: colIdx.expenseType >= 0 ? values[colIdx.expenseType].trim() : '',
+                            purpose: colIdx.purpose >= 0 ? values[colIdx.purpose].trim() : '',
+                            amount: amount,
+                            status: (colIdx.status >= 0 && values[colIdx.status] && values[colIdx.status].trim()) ? values[colIdx.status].trim() : 'Successful'
+                        });
+                    }
+
+                    if (rowsToInsert.length === 0) {
+                        this.showToast('No valid rows found in CSV (check the amount column)', 'error');
+                        return;
+                    }
+
+                    const { error } = await supabase.from('transactions').insert(rowsToInsert);
+                    if (error) {
+                        this.showToast('Error importing: ' + error.message, 'error');
+                        return;
+                    }
+
+                    this.showToast(`Imported ${rowsToInsert.length} transaction row(s)!`, 'success');
+                    await this.loadData();
+                    document.getElementById('transactionCsvFile').value = '';
                 },
 
                 generateTablePDF(title, headers, rows) {
