@@ -746,6 +746,7 @@
                     <li><button class="nav-btn" data-section="transactions" onclick="window.appInstance.navigateTo('transactions'); return false;">Transactions</button></li>
                     <li><button class="nav-btn" data-section="new-transaction" onclick="window.appInstance.navigateTo('new-transaction'); return false;">New Transaction</button></li>
                     <li><button class="nav-btn" data-section="master-data" onclick="window.appInstance.navigateTo('master-data'); return false;">Master Data</button></li>
+                    <li><button class="nav-btn" data-section="reports" onclick="window.appInstance.navigateTo('reports'); return false;">Reports</button></li>
                 </ul>
             </nav>
 
@@ -1002,6 +1003,58 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- REPORTS SECTION -->
+                <div id="reports" class="section">
+                    <h2 class="section-title">Reports</h2>
+
+                    <div class="data-card">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; align-items: end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Report By</label>
+                                <select id="reportGroupBy">
+                                    <option value="payee">Payee</option>
+                                    <option value="bank">Bank</option>
+                                    <option value="trans_date">Date</option>
+                                    <option value="plate_number">Plate No.</option>
+                                    <option value="expense_type">Expense Type</option>
+                                    <option value="account_name">Account Name</option>
+                                    <option value="payee_category">Payee Category</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Start Date</label>
+                                <input type="date" id="reportStartDate">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>End Date</label>
+                                <input type="date" id="reportEndDate">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <button class="btn btn-primary" onclick="window.appInstance.generateReport()" style="width: 100%;">Generate Report</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 id="reportResultsTitle" style="color: var(--color-heading); margin: 0; font-size: 1.05rem;">Report Results</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportReportCSV()">💾 Export CSV</button>
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportReportPDF()">💾 Export PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead id="reportTableHead">
+                                <tr><th>Group</th><th>Transactions</th><th>Total Amount</th></tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <tr><td colspan="3" style="text-align: center; padding: 2rem;">Set your filters and click Generate Report</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1030,6 +1083,8 @@
                 splitRowCounter: 0,
                 editingId: null,
                 editingTransactionId: null,
+                currentReportRows: [],
+                currentReportLabel: '',
                 tempBankAccounts: [],
 
                 async init() {
@@ -2148,6 +2203,93 @@
                     });
                     
                     doc.save(`${title.toLowerCase().replace(/\\s+/g, '-')}-export.pdf`);
+                },
+
+                // ===== REPORTS =====
+                reportGroupLabels: {
+                    payee: 'Payee',
+                    bank: 'Bank',
+                    trans_date: 'Date',
+                    plate_number: 'Plate No.',
+                    expense_type: 'Expense Type',
+                    account_name: 'Account Name',
+                    payee_category: 'Payee Category'
+                },
+
+                getReportGroupKey(t, groupBy) {
+                    if (groupBy === 'payee_category') {
+                        const payee = this.data.payees.find(p => p.name === t.payee);
+                        if (!payee || !payee.category) return '(no category)';
+                        const category = this.data.payeeCategories.find(c => c.id === payee.category);
+                        return category ? category.name : '(no category)';
+                    }
+                    return t[groupBy] || '(blank)';
+                },
+
+                generateReport() {
+                    const groupBy = document.getElementById('reportGroupBy').value;
+                    const startDate = document.getElementById('reportStartDate').value;
+                    const endDate = document.getElementById('reportEndDate').value;
+                    const label = this.reportGroupLabels[groupBy] || groupBy;
+
+                    let rows = [...this.data.transactions];
+                    if (startDate) rows = rows.filter(t => (t.trans_date || '') >= startDate);
+                    if (endDate) rows = rows.filter(t => (t.trans_date || '') <= endDate);
+
+                    const groups = {};
+                    rows.forEach(t => {
+                        const key = this.getReportGroupKey(t, groupBy);
+                        if (!groups[key]) groups[key] = { key, count: 0, total: 0 };
+                        groups[key].count += 1;
+                        groups[key].total += parseFloat(t.amount) || 0;
+                    });
+
+                    const groupRows = Object.values(groups).sort((a, b) => String(a.key).localeCompare(String(b.key)));
+                    this.currentReportRows = groupRows;
+                    this.currentReportLabel = label;
+
+                    document.getElementById('reportResultsTitle').textContent = `Report Results — By ${label}`;
+                    document.getElementById('reportTableHead').innerHTML = `<tr><th>${label}</th><th>Transactions</th><th>Total Amount</th></tr>`;
+
+                    const grandTotalCount = groupRows.reduce((sum, g) => sum + g.count, 0);
+                    const grandTotalAmount = groupRows.reduce((sum, g) => sum + g.total, 0);
+
+                    let html = '';
+                    groupRows.forEach(g => {
+                        html += `<tr><td>${g.key}</td><td>${g.count}</td><td>₱${g.total.toFixed(2)}</td></tr>`;
+                    });
+                    if (groupRows.length > 0) {
+                        html += `<tr style="font-weight: 700; background: var(--color-bg-hover);"><td>Grand Total</td><td>${grandTotalCount}</td><td>₱${grandTotalAmount.toFixed(2)}</td></tr>`;
+                    }
+
+                    document.getElementById('reportTableBody').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
+                },
+
+                exportReportCSV() {
+                    if (!this.currentReportRows || this.currentReportRows.length === 0) {
+                        this.showToast('Generate a report first', 'error');
+                        return;
+                    }
+                    let csv = `${this.currentReportLabel},Transactions,Total Amount\n`;
+                    this.currentReportRows.forEach(g => {
+                        csv += [g.key, g.count, g.total.toFixed(2)].map(v => this.csvEscape(v)).join(',') + '\n';
+                    });
+                    const grandTotalCount = this.currentReportRows.reduce((sum, g) => sum + g.count, 0);
+                    const grandTotalAmount = this.currentReportRows.reduce((sum, g) => sum + g.total, 0);
+                    csv += ['Grand Total', grandTotalCount, grandTotalAmount.toFixed(2)].map(v => this.csvEscape(v)).join(',') + '\n';
+                    this.downloadCSV(csv, `report-by-${this.currentReportLabel.toLowerCase().replace(/\s+/g, '-')}.csv`);
+                },
+
+                exportReportPDF() {
+                    if (!this.currentReportRows || this.currentReportRows.length === 0) {
+                        this.showToast('Generate a report first', 'error');
+                        return;
+                    }
+                    const body = this.currentReportRows.map(g => [g.key, g.count, `₱${g.total.toFixed(2)}`]);
+                    const grandTotalCount = this.currentReportRows.reduce((sum, g) => sum + g.count, 0);
+                    const grandTotalAmount = this.currentReportRows.reduce((sum, g) => sum + g.total, 0);
+                    body.push(['Grand Total', grandTotalCount, `₱${grandTotalAmount.toFixed(2)}`]);
+                    this.generateTablePDF(`Report by ${this.currentReportLabel}`, [this.currentReportLabel, 'Transactions', 'Total Amount'], body);
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
