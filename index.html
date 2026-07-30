@@ -401,6 +401,23 @@
             align-items: center;
         }
 
+        .split-row {
+            background: var(--color-bg-card);
+            border-left: 3px solid var(--color-secondary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .split-row .remove-split-btn {
+            height: 42px;
+        }
+
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -723,7 +740,7 @@
                 <div id="new-transaction" class="section">
                     <h2 class="section-title">New Transaction</h2>
                     
-                    <form id="transactionForm" onsubmit="window.appInstance.saveTransaction(event)">
+                    <form id="transactionForm" onsubmit="window.appInstance.saveTransaction(event); return false;">
                         <div class="form-group">
                             <label>Control Number</label>
                             <input type="text" id="refNumber" readonly>
@@ -735,35 +752,43 @@
                             <input type="date" id="transDate" required>
                         </div>
 
-                        <div class="form-group">
-                            <label>Bank *</label>
-                            <select id="bank" required>
-                                <option value="">-- Select Bank --</option>
-                            </select>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Account Name *</label>
+                                <select id="transferAccountName" onchange="window.appInstance.onAccountNameChange()" required>
+                                    <option value="">-- Select Account Holder --</option>
+                                </select>
+                                <small style="color: var(--color-text-secondary);">Receiving account name</small>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Bank *</label>
+                                <select id="transferBank" onchange="window.appInstance.onTransferBankChange()" required>
+                                    <option value="">-- Select Bank --</option>
+                                </select>
+                                <small style="color: var(--color-text-secondary);">Bank of receiving account</small>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Account Number</label>
+                                <input type="text" id="transferAccountNumber" placeholder="Account number">
+                                <small style="color: var(--color-text-secondary);">Auto-filled or manual entry</small>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Amount</label>
+                                <input type="text" id="transferAmount" readonly value="₱0.00">
+                                <small style="color: var(--color-text-secondary);">Auto sum of the transactions</small>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Payee *</label>
-                            <select id="payee" required>
-                                <option value="">-- Select Payee --</option>
-                            </select>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="color: var(--color-heading); margin: 0; letter-spacing: 0.5px; font-size: 1rem;">TRANSACTIONS</h3>
+                            <button type="button" class="btn btn-primary" onclick="window.appInstance.addSplitRow()">+ Add Split</button>
                         </div>
 
-                        <div class="form-group">
-                            <label>Amount *</label>
-                            <input type="number" id="amount" step="0.01" min="0" required>
-                        </div>
+                        <div id="splitsContainer"></div>
 
-                        <div class="form-group">
-                            <label>Expense Type *</label>
-                            <select id="expenseType" required>
-                                <option value="">-- Select Expense Type --</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Purpose</label>
-                            <textarea id="purpose" rows="3"></textarea>
+                        <div style="border: 1px solid var(--color-secondary); border-radius: var(--radius); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: var(--color-bg-card);">
+                            <strong style="color: var(--color-heading); font-size: 1.05rem;">Total Splits:</strong>
+                            <strong id="totalSplitsDisplay" style="color: var(--color-secondary); font-size: 1.3rem;">₱0.00</strong>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Save Transaction</button>
@@ -904,6 +929,7 @@
                 user: null,
                 supabase: supabase,
                 data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [], payeeAccounts: [] },
+                splitRowCounter: 0,
                 editingId: null,
                 tempBankAccounts: [],
 
@@ -1007,71 +1033,267 @@
                     this.populateDropdowns();
                     this.updateDashboard();
                     this.refreshMasterDataTables();
+                    this.refreshTransactionHistory();
                 },
 
                 populateDropdowns() {
-                    const bankSelect = document.getElementById('bank');
+                    const accountNameSelect = document.getElementById('transferAccountName');
+                    if (accountNameSelect) {
+                        const prevValue = accountNameSelect.value;
+                        accountNameSelect.innerHTML = '<option value="">-- Select Account Holder --</option>';
+                        [...this.data.payees].sort((a, b) => a.name.localeCompare(b.name)).forEach(p => {
+                            accountNameSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                        });
+                        if (prevValue) accountNameSelect.value = prevValue;
+                    }
+                },
+
+                payeeOptionsHTML(placeholder) {
+                    let html = `<option value="">${placeholder}</option>`;
+                    [...this.data.payees].sort((a, b) => a.name.localeCompare(b.name)).forEach(p => {
+                        html += `<option value="${p.id}">${p.name}</option>`;
+                    });
+                    return html;
+                },
+
+                plateOptionsHTML() {
+                    let html = '<option value="">-- Select Plate --</option>';
+                    [...this.data.plates].sort((a, b) => a.plate_number.localeCompare(b.plate_number)).forEach(p => {
+                        html += `<option value="${p.id}">${p.plate_number}${p.assigned_driver ? ' (' + p.assigned_driver + ')' : ''}</option>`;
+                    });
+                    return html;
+                },
+
+                expenseOptionsHTML() {
+                    let html = '<option value="">-- Select Type --</option>';
+                    [...this.data.expenseTypes].sort((a, b) => a.name.localeCompare(b.name)).forEach(e => {
+                        html += `<option value="${e.id}">${e.name}</option>`;
+                    });
+                    return html;
+                },
+
+                onAccountNameChange() {
+                    const payeeId = document.getElementById('transferAccountName').value;
+                    const bankSelect = document.getElementById('transferBank');
                     bankSelect.innerHTML = '<option value="">-- Select Bank --</option>';
-                    this.data.banks.forEach(b => {
-                        bankSelect.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                    const accounts = this.data.payeeAccounts.filter(acc => acc.payee_id === payeeId);
+                    accounts.forEach(acc => {
+                        bankSelect.innerHTML += `<option value="${acc.bank_id}">${acc.banks.name}</option>`;
                     });
+                    document.getElementById('transferAccountNumber').value = '';
+                },
 
-                    const payeeSelect = document.getElementById('payee');
-                    payeeSelect.innerHTML = '<option value="">-- Select Payee --</option>';
-                    this.data.payees.forEach(p => {
-                        payeeSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
-                    });
+                onTransferBankChange() {
+                    const payeeId = document.getElementById('transferAccountName').value;
+                    const bankId = document.getElementById('transferBank').value;
+                    const acc = this.data.payeeAccounts.find(a => a.payee_id === payeeId && a.bank_id === bankId);
+                    document.getElementById('transferAccountNumber').value = acc ? acc.account_number : '';
+                },
 
-                    const expenseSelect = document.getElementById('expenseType');
-                    expenseSelect.innerHTML = '<option value="">-- Select Expense Type --</option>';
-                    this.data.expenseTypes.forEach(e => {
-                        expenseSelect.innerHTML += `<option value="${e.id}">${e.name}</option>`;
+                addSplitRow() {
+                    const container = document.getElementById('splitsContainer');
+                    const idx = this.splitRowCounter = (this.splitRowCounter || 0) + 1;
+                    const row = document.createElement('div');
+                    row.className = 'split-row';
+                    row.dataset.idx = idx;
+                    row.innerHTML = `
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Payee *</label>
+                            <select class="split-payee" required>${this.payeeOptionsHTML('-- Select Payee --')}</select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Plate # *</label>
+                            <select class="split-plate" required>${this.plateOptionsHTML()}</select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Expense Type *</label>
+                            <select class="split-expense" required>${this.expenseOptionsHTML()}</select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Purpose</label>
+                            <input type="text" class="split-purpose" placeholder="Purpose...">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>Amount *</label>
+                            <input type="number" class="split-amount" step="0.01" min="0" placeholder="0.00" required oninput="window.appInstance.recalcTotals()">
+                        </div>
+                        <button type="button" class="btn btn-danger remove-split-btn" onclick="window.appInstance.removeSplitRow(this)">✕</button>
+                    `;
+                    container.appendChild(row);
+                    this.recalcTotals();
+                },
+
+                removeSplitRow(btn) {
+                    const container = document.getElementById('splitsContainer');
+                    if (container.querySelectorAll('.split-row').length <= 1) {
+                        this.showToast('At least one split is required', 'error');
+                        return;
+                    }
+                    btn.closest('.split-row').remove();
+                    this.recalcTotals();
+                },
+
+                recalcTotals() {
+                    let total = 0;
+                    document.querySelectorAll('#splitsContainer .split-amount').forEach(input => {
+                        total += parseFloat(input.value) || 0;
                     });
+                    document.getElementById('transferAmount').value = `₱${total.toFixed(2)}`;
+                    document.getElementById('totalSplitsDisplay').textContent = `₱${total.toFixed(2)}`;
+                    return total;
+                },
+
+                generateControlNumber() {
+                    let maxNum = 0;
+                    this.data.transactions.forEach(t => {
+                        const match = (t.control_number || '').match(/^YAMANA(\d+)$/i);
+                        if (match) {
+                            const n = parseInt(match[1], 10);
+                            if (n > maxNum) maxNum = n;
+                        }
+                    });
+                    return 'YAMANA' + String(maxNum + 1).padStart(4, '0');
+                },
+
+                groupTransfers() {
+                    const groups = {};
+                    this.data.transactions.forEach(t => {
+                        const key = t.control_number || t.ref_number;
+                        if (!groups[key]) {
+                            groups[key] = {
+                                control_number: key,
+                                trans_date: t.trans_date,
+                                bank: t.bank,
+                                account_name: t.account_name,
+                                amount: 0,
+                                status: t.status,
+                                created_at: t.created_at
+                            };
+                        }
+                        groups[key].amount += parseFloat(t.amount) || 0;
+                        if (t.created_at && (!groups[key].created_at || t.created_at > groups[key].created_at)) {
+                            groups[key].created_at = t.created_at;
+                        }
+                    });
+                    return Object.values(groups).sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                },
+
+                resetTransactionForm() {
+                    document.getElementById('transDate').valueAsDate = new Date();
+                    document.getElementById('refNumber').value = this.generateControlNumber();
+                    document.getElementById('transferAccountName').value = '';
+                    document.getElementById('transferBank').innerHTML = '<option value="">-- Select Bank --</option>';
+                    document.getElementById('transferAccountNumber').value = '';
+                    document.getElementById('splitsContainer').innerHTML = '';
+                    this.addSplitRow();
                 },
 
                 updateDashboard() {
+                    const transfers = this.groupTransfers();
                     const today = new Date().toISOString().split('T')[0];
-                    const todayTrans = this.data.transactions.filter(t => t.trans_date === today);
-                    const todayAmount = todayTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const todayTransfers = transfers.filter(t => t.trans_date === today);
+                    const todayAmount = todayTransfers.reduce((sum, t) => sum + t.amount, 0);
 
-                    document.getElementById('todayCount').textContent = todayTrans.length;
+                    document.getElementById('todayCount').textContent = todayTransfers.length;
                     document.getElementById('todayAmount').textContent = `₱${todayAmount.toFixed(2)}`;
 
                     const currentMonth = new Date().toISOString().substring(0, 7);
-                    const monthTrans = this.data.transactions.filter(t => t.trans_date.substring(0, 7) === currentMonth);
-                    const monthAmount = monthTrans.reduce((sum, t) => sum + (t.amount || 0), 0);
+                    const monthTransfers = transfers.filter(t => (t.trans_date || '').substring(0, 7) === currentMonth);
+                    const monthAmount = monthTransfers.reduce((sum, t) => sum + t.amount, 0);
                     document.getElementById('monthAmount').textContent = `₱${monthAmount.toFixed(2)}`;
 
                     let html = '';
-                    this.data.transactions.slice(0, 5).forEach(t => {
-                        const bank = this.data.banks.find(b => b.id === t.bank_id);
-                        const payee = this.data.payees.find(p => p.id === t.payee_id);
-                        html += `<tr><td>${t.ref_number}</td><td>${t.trans_date}</td><td>${bank?.name || '-'}</td><td>${payee?.name || '-'}</td><td>₱${parseFloat(t.amount).toFixed(2)}</td></tr>`;
+                    transfers.slice(0, 5).forEach(t => {
+                        html += `<tr><td>${t.control_number}</td><td>${t.trans_date}</td><td>${t.bank || '-'}</td><td>${t.account_name || '-'}</td><td>₱${t.amount.toFixed(2)}</td></tr>`;
                     });
                     document.getElementById('dashboardTableBody').innerHTML = html || '<tr><td colspan="5">No transactions</td></tr>';
                 },
 
+                refreshTransactionHistory() {
+                    const transfers = this.groupTransfers();
+                    let html = '';
+                    transfers.forEach(t => {
+                        html += `<tr><td>${t.control_number}</td><td>${t.trans_date}</td><td>${t.bank || '-'}</td><td>${t.account_name || '-'}</td><td>₱${t.amount.toFixed(2)}</td><td>${t.status || '-'}</td></tr>`;
+                    });
+                    const body = document.getElementById('transactionsTableBody');
+                    if (body) body.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No transactions</td></tr>';
+                },
+
                 async saveTransaction(e) {
                     e.preventDefault();
-                    const { error } = await supabase.from('transactions').insert([{
-                        ref_number: document.getElementById('refNumber').value,
-                        trans_date: document.getElementById('transDate').value,
-                        bank_id: document.getElementById('bank').value,
-                        payee_id: document.getElementById('payee').value,
-                        amount: parseFloat(document.getElementById('amount').value),
-                        expense_type_id: document.getElementById('expenseType').value,
-                        purpose: document.getElementById('purpose').value,
-                        status: 'Successful',
-                        encoded_by: this.user.id
-                    }]);
+
+                    const accountPayeeId = document.getElementById('transferAccountName').value;
+                    const bankId = document.getElementById('transferBank').value;
+                    const accountNumber = document.getElementById('transferAccountNumber').value.trim();
+                    const controlNumber = document.getElementById('refNumber').value;
+                    const transDate = document.getElementById('transDate').value;
+
+                    if (!accountPayeeId || !bankId) {
+                        this.showToast('Select the account name and bank', 'error');
+                        return;
+                    }
+
+                    const accountPayee = this.data.payees.find(p => p.id === accountPayeeId);
+                    const bank = this.data.banks.find(b => b.id === bankId);
+
+                    const splitRows = [...document.querySelectorAll('#splitsContainer .split-row')];
+                    if (splitRows.length === 0) {
+                        this.showToast('Add at least one split', 'error');
+                        return;
+                    }
+
+                    const splits = [];
+                    for (const row of splitRows) {
+                        const payeeId = row.querySelector('.split-payee').value;
+                        const plateId = row.querySelector('.split-plate').value;
+                        const expenseTypeId = row.querySelector('.split-expense').value;
+                        const purpose = row.querySelector('.split-purpose').value.trim();
+                        const amount = parseFloat(row.querySelector('.split-amount').value);
+
+                        if (!payeeId || !plateId || !expenseTypeId || !amount || amount <= 0) {
+                            this.showToast('Fill in payee, plate, expense type and amount for every split', 'error');
+                            return;
+                        }
+
+                        const splitPayee = this.data.payees.find(p => p.id === payeeId);
+                        const plate = this.data.plates.find(p => p.id === plateId);
+                        const expenseType = this.data.expenseTypes.find(x => x.id === expenseTypeId);
+
+                        splits.push({
+                            payeeName: splitPayee?.name || '',
+                            plateNumber: plate?.plate_number || '',
+                            expenseTypeName: expenseType?.name || '',
+                            purpose,
+                            amount
+                        });
+                    }
+
+                    const rowsToInsert = splits.map((s, i) => ({
+                        id: (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : `${controlNumber}-${Date.now()}-${i}`,
+                        ref_number: `${controlNumber}-${i + 1}`,
+                        control_number: controlNumber,
+                        trans_date: transDate,
+                        account_name: accountPayee?.name || '',
+                        bank: bank?.name || '',
+                        account_number: accountNumber,
+                        payee: s.payeeName,
+                        plate_number: s.plateNumber,
+                        expense_type: s.expenseTypeName,
+                        purpose: s.purpose,
+                        amount: s.amount,
+                        status: 'Successful'
+                    }));
+
+                    const { error } = await supabase.from('transactions').insert(rowsToInsert);
 
                     if (error) {
                         this.showToast('Error: ' + error.message, 'error');
-                    } else {
-                        this.showToast('Transaction saved!', 'success');
-                        document.getElementById('transactionForm').reset();
-                        await this.loadData();
+                        return;
                     }
+
+                    this.showToast('Transaction saved!', 'success');
+                    this.resetTransactionForm();
+                    await this.loadData();
                 },
 
                 navigateTo(section) {
@@ -1082,8 +1304,7 @@
                     document.querySelector(`[data-section="${section}"]`).classList.add('active');
 
                     if (section === 'new-transaction') {
-                        document.getElementById('transDate').valueAsDate = new Date();
-                        document.getElementById('refNumber').value = 'YAMANA' + String(Math.floor(Math.random() * 9999)).padStart(4, '0');
+                        this.resetTransactionForm();
                     }
 
                     if (section === 'master-data') {
