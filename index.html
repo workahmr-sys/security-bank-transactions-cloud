@@ -1055,9 +1055,10 @@
                         </table>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem 0;">
-                        <h3 style="color: var(--color-heading); margin: 0; font-size: 1.05rem;">Detailed Transactions</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem 0; flex-wrap: wrap; gap: 0.75rem;">
+                        <h3 id="reportDetailTitle" style="color: var(--color-heading); margin: 0; font-size: 1.05rem;">Detailed Transactions</h3>
                         <div style="display: flex; gap: 0.5rem;">
+                            <button id="reportDetailClearBtn" class="btn btn-secondary" onclick="window.appInstance.clearReportDetailFilter()" style="display: none;">Show All</button>
                             <button class="btn btn-secondary" onclick="window.appInstance.exportReportDetailCSV()">💾 Export CSV</button>
                             <button class="btn btn-secondary" onclick="window.appInstance.exportReportDetailPDF()">💾 Export PDF</button>
                         </div>
@@ -1114,6 +1115,7 @@
                 currentReportRows: [],
                 currentReportLabel: '',
                 currentReportDetailRows: [],
+                currentReportDetailFilterKey: null,
                 tempBankAccounts: [],
 
                 async init() {
@@ -2284,8 +2286,8 @@
                     const grandTotalAmount = groupRows.reduce((sum, g) => sum + g.total, 0);
 
                     let html = '';
-                    groupRows.forEach(g => {
-                        html += `<tr><td>${g.key}</td><td>${g.count}</td><td>₱${g.total.toFixed(2)}</td></tr>`;
+                    groupRows.forEach((g, idx) => {
+                        html += `<tr class="report-summary-row" onclick="window.appInstance.filterReportDetailByGroupIndex(${idx})" style="cursor: pointer;" title="Click to view ${label}: ${g.key}'s transactions"><td style="color: var(--color-secondary); text-decoration: underline;">${g.key}</td><td>${g.count}</td><td>₱${g.total.toFixed(2)}</td></tr>`;
                     });
                     if (groupRows.length > 0) {
                         html += `<tr style="font-weight: 700; background: var(--color-bg-hover);"><td>Grand Total</td><td>${grandTotalCount}</td><td>₱${grandTotalAmount.toFixed(2)}</td></tr>`;
@@ -2310,7 +2312,14 @@
                         return String(a.trans_date).localeCompare(String(b.trans_date));
                     });
                     this.currentReportDetailRows = detailRows;
+                    this.currentReportDetailFilterKey = null;
 
+                    this.renderReportDetailRows(detailRows);
+                    document.getElementById('reportDetailTitle').textContent = 'Detailed Transactions';
+                    document.getElementById('reportDetailClearBtn').style.display = 'none';
+                },
+
+                renderReportDetailRows(detailRows) {
                     let detailHtml = '';
                     detailRows.forEach(d => {
                         detailHtml += `<tr>
@@ -2325,6 +2334,24 @@
                         </tr>`;
                     });
                     document.getElementById('reportDetailTableBody').innerHTML = detailHtml || '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
+                },
+
+                filterReportDetailByGroupIndex(idx) {
+                    const group = this.currentReportRows[idx];
+                    if (!group) return;
+                    this.currentReportDetailFilterKey = group.key;
+                    const filtered = this.currentReportDetailRows.filter(d => d.groupKey === group.key);
+                    this.renderReportDetailRows(filtered);
+                    document.getElementById('reportDetailTitle').textContent = `Detailed Transactions — ${this.currentReportLabel}: ${group.key} (${filtered.length})`;
+                    document.getElementById('reportDetailClearBtn').style.display = 'inline-block';
+                    document.getElementById('reportDetailTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                },
+
+                clearReportDetailFilter() {
+                    this.currentReportDetailFilterKey = null;
+                    this.renderReportDetailRows(this.currentReportDetailRows);
+                    document.getElementById('reportDetailTitle').textContent = 'Detailed Transactions';
+                    document.getElementById('reportDetailClearBtn').style.display = 'none';
                 },
 
                 exportReportCSV() {
