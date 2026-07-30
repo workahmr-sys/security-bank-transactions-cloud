@@ -635,6 +635,66 @@
             </div>
         </div>
     </div>
+
+    <div id="editTransactionModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 550px;">
+            <h2>Edit Transaction</h2>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="editTransDate">
+            </div>
+            <div class="form-group">
+                <label>Account Name</label>
+                <input type="text" id="editAccountName" placeholder="Account holder name">
+            </div>
+            <div class="form-group">
+                <label>Bank</label>
+                <input type="text" id="editBank" placeholder="Bank name">
+            </div>
+            <div class="form-group">
+                <label>Account Number</label>
+                <input type="text" id="editAccountNumber" placeholder="Account number">
+            </div>
+            <div class="form-group">
+                <label>Payee (charged to) *</label>
+                <select id="editPayee" required>
+                    <option value="">-- Select Payee --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Plate # *</label>
+                <select id="editPlate" required>
+                    <option value="">-- Select Plate --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Expense Type *</label>
+                <select id="editExpenseType" required>
+                    <option value="">-- Select Type --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Purpose</label>
+                <input type="text" id="editPurpose" placeholder="Purpose">
+            </div>
+            <div class="form-group">
+                <label>Amount *</label>
+                <input type="number" id="editAmount" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="editStatus">
+                    <option value="Successful">Successful</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Void">Void</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-primary" onclick="window.appInstance.saveEditTransactionModal()">Save</button>
+                <button class="btn btn-secondary" onclick="window.appInstance.closeEditTransactionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
             <h1>🏦 Security Bank</h1>
@@ -643,6 +703,7 @@
             <input type="email" id="authEmail" placeholder="Email address" required>
             <input type="password" id="authPassword" placeholder="Password" required>
             <button onclick="window.appInstance.handleLogin()">Login</button>
+
             <button onclick="alert('Contact Mae to be added to system')" style="background: #6c757d;">Create Account</button>
             <div class="auth-error" id="authError"></div>
         </div>
@@ -716,21 +777,29 @@
                 <!-- TRANSACTIONS SECTION -->
                 <div id="transactions" class="section">
                     <h2 class="section-title">Transaction History</h2>
-                    
+
+                    <div class="form-group">
+                        <input type="text" id="transactionSearchInput" placeholder="Search by payee, plate, expense type, purpose, account name, amount..." oninput="window.appInstance.refreshTransactionHistory()">
+                    </div>
+
                     <div class="table-wrapper">
                         <table id="transactionsTable">
                             <thead>
                                 <tr>
-                                    <th>Ref #</th>
                                     <th>Date</th>
+                                    <th>Control #</th>
                                     <th>Bank</th>
                                     <th>Payee</th>
+                                    <th>Plate</th>
+                                    <th>Expense Type</th>
+                                    <th>Purpose</th>
                                     <th>Amount</th>
                                     <th>Status</th>
+                                    <th style="width: 220px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="transactionsTableBody">
-                                <tr><td colspan="6" style="text-align: center;">No transactions</td></tr>
+                                <tr><td colspan="10" style="text-align: center;">No transactions</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -931,6 +1000,7 @@
                 data: { transactions: [], banks: [], payees: [], expenseTypes: [], plates: [], payeeCategories: [], payeeAccounts: [] },
                 splitRowCounter: 0,
                 editingId: null,
+                editingTransactionId: null,
                 tempBankAccounts: [],
 
                 async init() {
@@ -1210,13 +1280,140 @@
                 },
 
                 refreshTransactionHistory() {
-                    const transfers = this.groupTransfers();
+                    const searchInput = document.getElementById('transactionSearchInput');
+                    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+                    let rows = [...this.data.transactions].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+
+                    if (query) {
+                        rows = rows.filter(t => {
+                            const haystack = [t.payee, t.plate_number, t.expense_type, t.purpose, t.account_name, t.amount]
+                                .map(v => (v === null || v === undefined) ? '' : String(v).toLowerCase())
+                                .join(' ');
+                            return haystack.includes(query);
+                        });
+                    }
+
                     let html = '';
-                    transfers.forEach(t => {
-                        html += `<tr><td>${t.control_number}</td><td>${t.trans_date}</td><td>${t.bank || '-'}</td><td>${t.account_name || '-'}</td><td>₱${t.amount.toFixed(2)}</td><td>${t.status || '-'}</td></tr>`;
+                    rows.forEach(t => {
+                        const amountNum = parseFloat(t.amount) || 0;
+                        html += `<tr>
+                            <td>${t.trans_date || '-'}</td>
+                            <td>${t.control_number || t.ref_number || '-'}</td>
+                            <td>${t.bank || '-'}</td>
+                            <td>${t.payee || '-'}</td>
+                            <td>${t.plate_number || '-'}</td>
+                            <td>${t.expense_type || '-'}</td>
+                            <td>${t.purpose || '-'}</td>
+                            <td>₱${amountNum.toFixed(2)}</td>
+                            <td>${t.status || '-'}</td>
+                            <td>
+                                <button class="btn btn-secondary" onclick="window.appInstance.openEditTransactionModal('${t.id}')" style="padding: 0.4rem 0.7rem; font-size: 0.8rem; margin-right: 0.25rem;">Edit</button>
+                                <button class="btn btn-secondary" onclick="window.appInstance.voidTransaction('${t.id}')" style="padding: 0.4rem 0.7rem; font-size: 0.8rem; margin-right: 0.25rem;">Void</button>
+                                <button class="btn btn-danger" onclick="window.appInstance.deleteTransactionRow('${t.id}')" style="padding: 0.4rem 0.7rem; font-size: 0.8rem;">Delete</button>
+                            </td>
+                        </tr>`;
                     });
                     const body = document.getElementById('transactionsTableBody');
-                    if (body) body.innerHTML = html || '<tr><td colspan="6" style="text-align: center;">No transactions</td></tr>';
+                    if (body) body.innerHTML = html || '<tr><td colspan="10" style="text-align: center;">No transactions found</td></tr>';
+                },
+
+                openEditTransactionModal(id) {
+                    const t = this.data.transactions.find(x => x.id === id);
+                    if (!t) return;
+                    this.editingTransactionId = id;
+
+                    const payeeSelect = document.getElementById('editPayee');
+                    payeeSelect.innerHTML = this.payeeOptionsHTML('-- Select Payee --');
+                    const matchingPayee = this.data.payees.find(p => p.name === t.payee);
+                    if (matchingPayee) payeeSelect.value = matchingPayee.id;
+
+                    const plateSelect = document.getElementById('editPlate');
+                    plateSelect.innerHTML = this.plateOptionsHTML();
+                    const matchingPlate = this.data.plates.find(p => p.plate_number === t.plate_number);
+                    if (matchingPlate) plateSelect.value = matchingPlate.id;
+
+                    const expenseSelect = document.getElementById('editExpenseType');
+                    expenseSelect.innerHTML = this.expenseOptionsHTML();
+                    const matchingExpense = this.data.expenseTypes.find(e => e.name === t.expense_type);
+                    if (matchingExpense) expenseSelect.value = matchingExpense.id;
+
+                    document.getElementById('editTransDate').value = t.trans_date || '';
+                    document.getElementById('editAccountName').value = t.account_name || '';
+                    document.getElementById('editBank').value = t.bank || '';
+                    document.getElementById('editAccountNumber').value = t.account_number || '';
+                    document.getElementById('editPurpose').value = t.purpose || '';
+                    document.getElementById('editAmount').value = t.amount || '';
+                    document.getElementById('editStatus').value = t.status || 'Successful';
+
+                    document.getElementById('editTransactionModal').style.display = 'flex';
+                },
+
+                closeEditTransactionModal() {
+                    document.getElementById('editTransactionModal').style.display = 'none';
+                    this.editingTransactionId = null;
+                },
+
+                async saveEditTransactionModal() {
+                    if (!this.editingTransactionId) return;
+
+                    const payeeId = document.getElementById('editPayee').value;
+                    const plateId = document.getElementById('editPlate').value;
+                    const expenseTypeId = document.getElementById('editExpenseType').value;
+                    const amount = parseFloat(document.getElementById('editAmount').value);
+
+                    if (!payeeId || !plateId || !expenseTypeId || !amount || amount <= 0) {
+                        this.showToast('Payee, plate, expense type and amount are required', 'error');
+                        return;
+                    }
+
+                    const payee = this.data.payees.find(p => p.id === payeeId);
+                    const plate = this.data.plates.find(p => p.id === plateId);
+                    const expenseType = this.data.expenseTypes.find(e => e.id === expenseTypeId);
+
+                    const { error } = await supabase.from('transactions').update({
+                        trans_date: document.getElementById('editTransDate').value,
+                        account_name: document.getElementById('editAccountName').value.trim(),
+                        bank: document.getElementById('editBank').value.trim(),
+                        account_number: document.getElementById('editAccountNumber').value.trim(),
+                        payee: payee?.name || '',
+                        plate_number: plate?.plate_number || '',
+                        expense_type: expenseType?.name || '',
+                        purpose: document.getElementById('editPurpose').value.trim(),
+                        amount: amount,
+                        status: document.getElementById('editStatus').value
+                    }).eq('id', this.editingTransactionId);
+
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                        return;
+                    }
+
+                    this.showToast('Transaction updated!', 'success');
+                    this.closeEditTransactionModal();
+                    await this.loadData();
+                },
+
+                async voidTransaction(id) {
+                    if (!confirm('Void this transaction? It will be kept for records but marked Void.')) return;
+                    const { error } = await supabase.from('transactions').update({ status: 'Void' }).eq('id', id);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                        return;
+                    }
+                    this.showToast('Transaction voided', 'success');
+                    await this.loadData();
+                },
+
+                async deleteTransactionRow(id) {
+                    if (!confirm('Permanently delete this transaction? This cannot be undone.')) return;
+                    const { error } = await supabase.from('transactions').delete().eq('id', id);
+                    if (error) {
+                        this.showToast('Error: ' + error.message, 'error');
+                        return;
+                    }
+                    this.showToast('Transaction deleted', 'success');
+                    await this.loadData();
                 },
 
                 async saveTransaction(e) {
