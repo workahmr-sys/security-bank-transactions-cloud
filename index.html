@@ -1323,8 +1323,8 @@
                     document.querySelectorAll('#splitsContainer .split-amount').forEach(input => {
                         total += parseFloat(input.value) || 0;
                     });
-                    document.getElementById('transferAmount').value = `₱${total.toFixed(2)}`;
-                    document.getElementById('totalSplitsDisplay').textContent = `₱${total.toFixed(2)}`;
+                    document.getElementById('transferAmount').value = this.formatCurrency(total);
+                    document.getElementById('totalSplitsDisplay').textContent = this.formatCurrency(total);
                     return total;
                 },
 
@@ -1380,16 +1380,16 @@
                     const todayAmount = todayTransfers.reduce((sum, t) => sum + t.amount, 0);
 
                     document.getElementById('todayCount').textContent = todayTransfers.length;
-                    document.getElementById('todayAmount').textContent = `₱${todayAmount.toFixed(2)}`;
+                    document.getElementById('todayAmount').textContent = this.formatCurrency(todayAmount);
 
                     const currentMonth = new Date().toISOString().substring(0, 7);
                     const monthTransfers = transfers.filter(t => (t.trans_date || '').substring(0, 7) === currentMonth);
                     const monthAmount = monthTransfers.reduce((sum, t) => sum + t.amount, 0);
-                    document.getElementById('monthAmount').textContent = `₱${monthAmount.toFixed(2)}`;
+                    document.getElementById('monthAmount').textContent = this.formatCurrency(monthAmount);
 
                     let html = '';
                     transfers.slice(0, 5).forEach(t => {
-                        html += `<tr><td>${t.control_number}</td><td>${t.trans_date}</td><td>${t.bank || '-'}</td><td>${t.account_name || '-'}</td><td>₱${t.amount.toFixed(2)}</td></tr>`;
+                        html += `<tr><td>${t.control_number}</td><td>${t.trans_date}</td><td>${t.bank || '-'}</td><td>${t.account_name || '-'}</td><td>${this.formatCurrency(t.amount)}</td></tr>`;
                     });
                     document.getElementById('dashboardTableBody').innerHTML = html || '<tr><td colspan="5">No transactions</td></tr>';
                 },
@@ -1420,7 +1420,7 @@
                             <td>${t.plate_number || '-'}</td>
                             <td>${t.expense_type || '-'}</td>
                             <td>${t.purpose || '-'}</td>
-                            <td>₱${amountNum.toFixed(2)}</td>
+                            <td>${this.formatCurrency(amountNum)}</td>
                             <td>${t.status || '-'}</td>
                             <td>
                                 <button class="btn btn-secondary" onclick="window.appInstance.openViewTransactionModal('${t.id}')" style="padding: 0.4rem 0.7rem; font-size: 0.8rem; margin-right: 0.25rem;">View</button>
@@ -1453,7 +1453,7 @@
                         field('Plate #', t.plate_number) +
                         field('Expense Type', t.expense_type) +
                         field('Status', t.status) +
-                        field('Amount', `₱${amountNum.toFixed(2)}`) +
+                        field('Amount', this.formatCurrency(amountNum)) +
                         `<div style="grid-column: 1 / -1;">` + field('Purpose', t.purpose) + `</div>`;
                     document.getElementById('viewTransactionModal').style.display = 'flex';
                 },
@@ -2105,10 +2105,10 @@
                         t.plate_number || '-',
                         t.expense_type || '-',
                         t.purpose || '-',
-                        `₱${(parseFloat(t.amount) || 0).toFixed(2)}`,
+                        this.formatCurrencyPDF(t.amount),
                         t.status || '-'
                     ]);
-                    this.generateTablePDF('Transaction History', ['Date', 'Control #', 'Bank', 'Payee', 'Plate', 'Expense Type', 'Purpose', 'Amount', 'Status'], body);
+                    this.generateTablePDF('Transaction History', ['Date', 'Control #', 'Bank', 'Payee', 'Plate', 'Expense Type', 'Purpose', 'Amount (PHP)', 'Status'], body);
                 },
 
                 parseCSVLine(line) {
@@ -2207,20 +2207,36 @@
                     document.getElementById('transactionCsvFile').value = '';
                 },
 
+                formatCurrency(amount) {
+                    return `₱${(parseFloat(amount) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                },
+
+                formatCurrencyPDF(amount) {
+                    return (parseFloat(amount) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                },
+
                 generateTablePDF(title, headers, rows) {
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const orientation = headers.length >= 7 ? 'landscape' : 'portrait';
+                    const doc = new jsPDF({ orientation });
                     const margin = 10;
-                    
+
                     // Add title
                     doc.setFontSize(16);
                     doc.text(title, margin, margin + 10);
-                    
+
                     // Add timestamp
                     doc.setFontSize(10);
                     doc.text(`Generated: ${new Date().toLocaleString()}`, margin, margin + 18);
-                    
+
+                    // Right-align any Amount/Total column so numbers never spill past their cell
+                    const columnStyles = {};
+                    headers.forEach((h, idx) => {
+                        if (/amount|total/i.test(h)) {
+                            columnStyles[idx] = { halign: 'right', cellWidth: 'wrap' };
+                        }
+                    });
+
                     // Add table
                     doc.autoTable({
                         head: [headers],
@@ -2228,11 +2244,14 @@
                         startY: margin + 25,
                         margin: { top: margin, right: margin, left: margin, bottom: margin },
                         theme: 'grid',
-                        headStyles: { fillColor: [26, 58, 82], textColor: 255, fontStyle: 'bold' },
+                        styles: { fontSize: 8, cellPadding: 3, overflow: 'linebreak', valign: 'middle' },
+                        headStyles: { fillColor: [26, 58, 82], textColor: 255, fontStyle: 'bold', fontSize: 8 },
                         bodyStyles: { textColor: 0 },
-                        alternateRowStyles: { fillColor: [245, 245, 245] }
+                        alternateRowStyles: { fillColor: [245, 245, 245] },
+                        columnStyles: columnStyles,
+                        tableWidth: 'auto'
                     });
-                    
+
                     doc.save(`${title.toLowerCase().replace(/\\s+/g, '-')}-export.pdf`);
                 },
 
@@ -2287,10 +2306,10 @@
 
                     let html = '';
                     groupRows.forEach((g, idx) => {
-                        html += `<tr class="report-summary-row" onclick="window.appInstance.filterReportDetailByGroupIndex(${idx})" style="cursor: pointer;" title="Click to view ${label}: ${g.key}'s transactions"><td style="color: var(--color-secondary); text-decoration: underline;">${g.key}</td><td>${g.count}</td><td>₱${g.total.toFixed(2)}</td></tr>`;
+                        html += `<tr class="report-summary-row" onclick="window.appInstance.filterReportDetailByGroupIndex(${idx})" style="cursor: pointer;" title="Click to view ${label}: ${g.key}'s transactions"><td style="color: var(--color-secondary); text-decoration: underline;">${g.key}</td><td>${g.count}</td><td>${this.formatCurrency(g.total)}</td></tr>`;
                     });
                     if (groupRows.length > 0) {
-                        html += `<tr style="font-weight: 700; background: var(--color-bg-hover);"><td>Grand Total</td><td>${grandTotalCount}</td><td>₱${grandTotalAmount.toFixed(2)}</td></tr>`;
+                        html += `<tr style="font-weight: 700; background: var(--color-bg-hover);"><td>Grand Total</td><td>${grandTotalCount}</td><td>${this.formatCurrency(grandTotalAmount)}</td></tr>`;
                     }
 
                     document.getElementById('reportTableBody').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
@@ -2330,7 +2349,7 @@
                             <td>${d.bank || '-'}</td>
                             <td>${d.expense_type || '-'}</td>
                             <td>${d.purpose || '-'}</td>
-                            <td>₱${d.amount.toFixed(2)}</td>
+                            <td>${this.formatCurrency(d.amount)}</td>
                         </tr>`;
                     });
                     document.getElementById('reportDetailTableBody').innerHTML = detailHtml || '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
@@ -2374,11 +2393,11 @@
                         this.showToast('Generate a report first', 'error');
                         return;
                     }
-                    const body = this.currentReportRows.map(g => [g.key, g.count, `₱${g.total.toFixed(2)}`]);
+                    const body = this.currentReportRows.map(g => [g.key, g.count, this.formatCurrencyPDF(g.total)]);
                     const grandTotalCount = this.currentReportRows.reduce((sum, g) => sum + g.count, 0);
                     const grandTotalAmount = this.currentReportRows.reduce((sum, g) => sum + g.total, 0);
-                    body.push(['Grand Total', grandTotalCount, `₱${grandTotalAmount.toFixed(2)}`]);
-                    this.generateTablePDF(`Report by ${this.currentReportLabel}`, [this.currentReportLabel, 'Transactions', 'Total Amount'], body);
+                    body.push(['Grand Total', grandTotalCount, this.formatCurrencyPDF(grandTotalAmount)]);
+                    this.generateTablePDF(`Report by ${this.currentReportLabel}`, [this.currentReportLabel, 'Transactions', 'Total Amount (PHP)'], body);
                 },
 
                 getReportDetailExportRows() {
@@ -2411,12 +2430,12 @@
                     }
                     const body = rows.map(d => [
                         d.trans_date || '-', d.control_number || '-', d.payee || '-', d.plate_number || '-',
-                        d.bank || '-', d.expense_type || '-', d.purpose || '-', `₱${d.amount.toFixed(2)}`
+                        d.bank || '-', d.expense_type || '-', d.purpose || '-', this.formatCurrencyPDF(d.amount)
                     ]);
                     const title = this.currentReportDetailFilterKey
                         ? `Detailed Report — ${this.currentReportLabel}: ${this.currentReportDetailFilterKey}`
                         : `Detailed Report by ${this.currentReportLabel}`;
-                    this.generateTablePDF(title, ['Date', 'Control #', 'Payee', 'Plate', 'Bank', 'Expense Type', 'Purpose', 'Amount'], body);
+                    this.generateTablePDF(title, ['Date', 'Control #', 'Payee', 'Plate', 'Bank', 'Expense Type', 'Purpose', 'Amount (PHP)'], body);
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
