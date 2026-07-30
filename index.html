@@ -1398,7 +1398,11 @@
                     const searchInput = document.getElementById('transactionSearchInput');
                     const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-                    let rows = [...this.data.transactions].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                    let rows = [...this.data.transactions].sort((a, b) => {
+                        const dateCompare = String(b.trans_date || '').localeCompare(String(a.trans_date || ''));
+                        if (dateCompare !== 0) return dateCompare;
+                        return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+                    });
 
                     if (query) {
                         rows = rows.filter(t => {
