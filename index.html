@@ -2381,29 +2381,42 @@
                     this.generateTablePDF(`Report by ${this.currentReportLabel}`, [this.currentReportLabel, 'Transactions', 'Total Amount'], body);
                 },
 
+                getReportDetailExportRows() {
+                    if (this.currentReportDetailFilterKey !== null && this.currentReportDetailFilterKey !== undefined) {
+                        return this.currentReportDetailRows.filter(d => d.groupKey === this.currentReportDetailFilterKey);
+                    }
+                    return this.currentReportDetailRows;
+                },
+
                 exportReportDetailCSV() {
-                    if (!this.currentReportDetailRows || this.currentReportDetailRows.length === 0) {
+                    const rows = this.getReportDetailExportRows();
+                    if (!rows || rows.length === 0) {
                         this.showToast('Generate a report first', 'error');
                         return;
                     }
                     let csv = 'Date,Control #,Payee,Plate,Bank,Expense Type,Purpose,Amount\n';
-                    this.currentReportDetailRows.forEach(d => {
+                    rows.forEach(d => {
                         csv += [d.trans_date, d.control_number, d.payee, d.plate_number, d.bank, d.expense_type, d.purpose, d.amount.toFixed(2)]
                             .map(v => this.csvEscape(v)).join(',') + '\n';
                     });
-                    this.downloadCSV(csv, `report-detail-by-${this.currentReportLabel.toLowerCase().replace(/\s+/g, '-')}.csv`);
+                    const scopeLabel = this.currentReportDetailFilterKey ? `${this.currentReportLabel}-${this.currentReportDetailFilterKey}` : `by-${this.currentReportLabel}`;
+                    this.downloadCSV(csv, `report-detail-${scopeLabel.toLowerCase().replace(/\s+/g, '-')}.csv`);
                 },
 
                 exportReportDetailPDF() {
-                    if (!this.currentReportDetailRows || this.currentReportDetailRows.length === 0) {
+                    const rows = this.getReportDetailExportRows();
+                    if (!rows || rows.length === 0) {
                         this.showToast('Generate a report first', 'error');
                         return;
                     }
-                    const body = this.currentReportDetailRows.map(d => [
+                    const body = rows.map(d => [
                         d.trans_date || '-', d.control_number || '-', d.payee || '-', d.plate_number || '-',
                         d.bank || '-', d.expense_type || '-', d.purpose || '-', `₱${d.amount.toFixed(2)}`
                     ]);
-                    this.generateTablePDF(`Detailed Report by ${this.currentReportLabel}`, ['Date', 'Control #', 'Payee', 'Plate', 'Bank', 'Expense Type', 'Purpose', 'Amount'], body);
+                    const title = this.currentReportDetailFilterKey
+                        ? `Detailed Report — ${this.currentReportLabel}: ${this.currentReportDetailFilterKey}`
+                        : `Detailed Report by ${this.currentReportLabel}`;
+                    this.generateTablePDF(title, ['Date', 'Control #', 'Payee', 'Plate', 'Bank', 'Expense Type', 'Purpose', 'Amount'], body);
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
