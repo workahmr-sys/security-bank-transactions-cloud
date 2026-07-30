@@ -510,6 +510,130 @@
         .toast.error {
             border-left-color: var(--color-failed);
         }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .app-header h1 {
+                font-size: 1.05rem;
+            }
+
+            .app-header .user-info {
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                flex-wrap: wrap;
+            }
+
+            .main-content {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--color-border);
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-shrink: 0;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                width: max-content;
+                min-width: 100%;
+            }
+
+            .sidebar-nav li {
+                border-bottom: none;
+                border-right: 1px solid var(--color-border);
+                flex: 0 0 auto;
+            }
+
+            .sidebar-nav button {
+                white-space: nowrap;
+                padding: 0.75rem 1rem;
+            }
+
+            .sidebar-nav button.active {
+                border-left: none;
+                border-bottom: 3px solid var(--color-primary);
+                padding-left: 1rem;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+                padding-bottom: 0.75rem;
+            }
+
+            .dashboard-grid {
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .summary-card {
+                padding: 1.1rem;
+            }
+
+            .summary-card-value {
+                font-size: 1.5rem;
+            }
+
+            .data-card {
+                padding: 1rem;
+            }
+
+            /* Let wide tables scroll horizontally instead of squeezing columns unreadably */
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-wrapper table {
+                min-width: 640px;
+            }
+
+            .modal-box {
+                width: 92%;
+                padding: 1.25rem;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .split-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .split-row .remove-split-btn {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+            .btn {
+                padding: 0.55rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .split-row {
+                grid-template-columns: 1fr;
+            }
+
+            .app-header .user-info span {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1036,7 +1160,7 @@
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
                         <h3 id="reportResultsTitle" style="color: var(--color-heading); margin: 0; font-size: 1.05rem;">Report Results</h3>
                         <div style="display: flex; gap: 0.5rem;">
                             <button class="btn btn-secondary" onclick="window.appInstance.exportReportCSV()">💾 Export CSV</button>
