@@ -1054,6 +1054,34 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0 1rem 0;">
+                        <h3 style="color: var(--color-heading); margin: 0; font-size: 1.05rem;">Detailed Transactions</h3>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportReportDetailCSV()">💾 Export CSV</button>
+                            <button class="btn btn-secondary" onclick="window.appInstance.exportReportDetailPDF()">💾 Export PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Control #</th>
+                                    <th>Payee</th>
+                                    <th>Plate</th>
+                                    <th>Bank</th>
+                                    <th>Expense Type</th>
+                                    <th>Purpose</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportDetailTableBody">
+                                <tr><td colspan="8" style="text-align: center; padding: 2rem;">Set your filters and click Generate Report</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1085,6 +1113,7 @@
                 editingTransactionId: null,
                 currentReportRows: [],
                 currentReportLabel: '',
+                currentReportDetailRows: [],
                 tempBankAccounts: [],
 
                 async init() {
@@ -2263,6 +2292,39 @@
                     }
 
                     document.getElementById('reportTableBody').innerHTML = html || '<tr><td colspan="3" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
+
+                    // Detailed line items, sorted by the chosen group, then date
+                    const detailRows = rows.map(t => ({
+                        groupKey: this.getReportGroupKey(t, groupBy),
+                        trans_date: t.trans_date || '',
+                        control_number: t.control_number || t.ref_number || '',
+                        payee: t.payee || '',
+                        plate_number: t.plate_number || '',
+                        bank: t.bank || '',
+                        expense_type: t.expense_type || '',
+                        purpose: t.purpose || '',
+                        amount: parseFloat(t.amount) || 0
+                    })).sort((a, b) => {
+                        const groupCompare = String(a.groupKey).localeCompare(String(b.groupKey));
+                        if (groupCompare !== 0) return groupCompare;
+                        return String(a.trans_date).localeCompare(String(b.trans_date));
+                    });
+                    this.currentReportDetailRows = detailRows;
+
+                    let detailHtml = '';
+                    detailRows.forEach(d => {
+                        detailHtml += `<tr>
+                            <td>${d.trans_date || '-'}</td>
+                            <td>${d.control_number || '-'}</td>
+                            <td>${d.payee || '-'}</td>
+                            <td>${d.plate_number || '-'}</td>
+                            <td>${d.bank || '-'}</td>
+                            <td>${d.expense_type || '-'}</td>
+                            <td>${d.purpose || '-'}</td>
+                            <td>₱${d.amount.toFixed(2)}</td>
+                        </tr>`;
+                    });
+                    document.getElementById('reportDetailTableBody').innerHTML = detailHtml || '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No transactions found for this filter</td></tr>';
                 },
 
                 exportReportCSV() {
@@ -2290,6 +2352,31 @@
                     const grandTotalAmount = this.currentReportRows.reduce((sum, g) => sum + g.total, 0);
                     body.push(['Grand Total', grandTotalCount, `₱${grandTotalAmount.toFixed(2)}`]);
                     this.generateTablePDF(`Report by ${this.currentReportLabel}`, [this.currentReportLabel, 'Transactions', 'Total Amount'], body);
+                },
+
+                exportReportDetailCSV() {
+                    if (!this.currentReportDetailRows || this.currentReportDetailRows.length === 0) {
+                        this.showToast('Generate a report first', 'error');
+                        return;
+                    }
+                    let csv = 'Date,Control #,Payee,Plate,Bank,Expense Type,Purpose,Amount\n';
+                    this.currentReportDetailRows.forEach(d => {
+                        csv += [d.trans_date, d.control_number, d.payee, d.plate_number, d.bank, d.expense_type, d.purpose, d.amount.toFixed(2)]
+                            .map(v => this.csvEscape(v)).join(',') + '\n';
+                    });
+                    this.downloadCSV(csv, `report-detail-by-${this.currentReportLabel.toLowerCase().replace(/\s+/g, '-')}.csv`);
+                },
+
+                exportReportDetailPDF() {
+                    if (!this.currentReportDetailRows || this.currentReportDetailRows.length === 0) {
+                        this.showToast('Generate a report first', 'error');
+                        return;
+                    }
+                    const body = this.currentReportDetailRows.map(d => [
+                        d.trans_date || '-', d.control_number || '-', d.payee || '-', d.plate_number || '-',
+                        d.bank || '-', d.expense_type || '-', d.purpose || '-', `₱${d.amount.toFixed(2)}`
+                    ]);
+                    this.generateTablePDF(`Detailed Report by ${this.currentReportLabel}`, ['Date', 'Control #', 'Payee', 'Plate', 'Bank', 'Expense Type', 'Purpose', 'Amount'], body);
                 },
 
                 // ===== CSV IMPORT FUNCTIONS =====
