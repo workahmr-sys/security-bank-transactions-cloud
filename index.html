@@ -2377,7 +2377,13 @@
                         bodyStyles: { textColor: 0 },
                         alternateRowStyles: { fillColor: [245, 245, 245] },
                         columnStyles: columnStyles,
-                        tableWidth: 'auto'
+                        tableWidth: 'auto',
+                        didParseCell: (data) => {
+                            if (data.section === 'body' && Array.isArray(data.row.raw) && data.row.raw.includes('Grand Total')) {
+                                data.cell.styles.fontStyle = 'bold';
+                                data.cell.styles.fillColor = [230, 236, 240];
+                            }
+                        }
                     });
 
                     doc.save(`${title.toLowerCase().replace(/\\s+/g, '-')}-export.pdf`);
@@ -2546,6 +2552,8 @@
                         csv += [d.trans_date, d.control_number, d.payee, d.plate_number, d.bank, d.expense_type, d.purpose, d.amount.toFixed(2)]
                             .map(v => this.csvEscape(v)).join(',') + '\n';
                     });
+                    const grandTotal = rows.reduce((sum, d) => sum + d.amount, 0);
+                    csv += ['', '', '', '', '', '', 'Grand Total', grandTotal.toFixed(2)].map(v => this.csvEscape(v)).join(',') + '\n';
                     const scopeLabel = this.currentReportDetailFilterKey ? `${this.currentReportLabel}-${this.currentReportDetailFilterKey}` : `by-${this.currentReportLabel}`;
                     this.downloadCSV(csv, `report-detail-${scopeLabel.toLowerCase().replace(/\s+/g, '-')}.csv`);
                 },
@@ -2560,6 +2568,8 @@
                         d.trans_date || '-', d.control_number || '-', d.payee || '-', d.plate_number || '-',
                         d.bank || '-', d.expense_type || '-', d.purpose || '-', this.formatCurrencyPDF(d.amount)
                     ]);
+                    const grandTotal = rows.reduce((sum, d) => sum + d.amount, 0);
+                    body.push(['', '', '', '', '', '', 'Grand Total', this.formatCurrencyPDF(grandTotal)]);
                     const title = this.currentReportDetailFilterKey
                         ? `Detailed Report — ${this.currentReportLabel}: ${this.currentReportDetailFilterKey}`
                         : `Detailed Report by ${this.currentReportLabel}`;
